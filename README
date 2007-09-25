@@ -1,0 +1,156 @@
+NAME
+    CPAN::Testers::Report - Creates CPAN Testers test-report objects
+
+SYNOPSIS
+      use CPAN::Testers::Report;
+      use Config;
+
+      my $test_report = CPAN::Testers::Report->new();
+      $test_report->comments('Rejoice!');
+      $test_report->config(Config::myconfig()) || die $test_report->error();
+      $test_report->dist('Test-Reporter-1.34') || die $test_report->error();
+      $test_report->grade('pass') || die $test_report->error();
+      $test_report->from('Adam J. Foxson <afoxson@pobox.com>');
+
+DESCRIPTION
+    Welcome to CPAN::Testers::Report. This is the first distribution in the
+    CPAN::Testers namespace. This module is designed to be part of the
+    next-generation implementation of the CPAN Tester's stack. When
+    complete, this distribution and its constituents will obsolete
+    Test::Reporter.
+
+    This module provides an abstraction for test reports. Objects will
+    encapsulate all data and information about a single, specific test
+    report. These objects can then be submitted to a user's transport of
+    choice for delivery.
+
+    This is a developer's release. The interface is not stable; The API may
+    change at any time without notice. This module is not yet recommended
+    for general use.
+
+METHODS
+    * archname
+        Automatically calculated but can be overriden. This is a short name
+        to characterize the current architecture.
+
+    * comments
+        User-specified comments to include with the test report. This is
+        oftentimes the output of a failed 'make test'. Optional.
+
+    * config
+        This method should be the recipient of Config::myconfig().
+        Mandatory. If this method returns undef, it failed.
+
+    * dist
+        Full distribution name and version of which this test report is
+        about. For example 'Test-Reporter-1.34'. Mandatory. If this methods
+        returns undef, it failed.
+
+    * dist_name
+        Automatically calculated but can be overriden. This represents the
+        distribution's name only. For example 'Test-Reporter'.
+
+    * dist_vers
+        Automatically calculated but can be overriden. This represents the
+        distribution's version only. For example '1.34'.
+
+    * error
+        Returns an error message when an error has occurred.
+
+    * from
+        Name and e-mail address of the tester. For example 'Adam J. Foxson
+        <afoxson@pobox.com>'. Optional at the moment, but should probably be
+        mandatory, and possibly even rfc2822-compliant.
+
+    * grade
+        Grade for the result of 'make test'. Must be pass, fail, na, or
+        unknown. 'Pass' indicates that all tests passed. 'Fail' indicates
+        one or more tests failed. 'Na' indicates that the distribution will
+        not work on this platform. 'Unknown' indicates that the distribution
+        did not include tests. Mandatory. If this method returns undef, it
+        failed.
+
+    * interpreter
+        At the moment always returns 'perl'.
+
+    * interpreter_vers1
+        Automatically calculated but can be overriden. This represents the
+        interpreter's version. For example in the format of '5.8.8'. I need
+        to find a better name for this method.
+
+    * interpreter_vers2
+        Automatically calculated but can be overriden. This represents the
+        interpreter's version. For example in the format of '5.008008'. I
+        need to find a better name for this method.
+
+    * interpreter_vers_extra
+        Automatically calculated but can be overriden. This usually
+        represents the interpreter's patch/patchlevel, if available. For
+        example 'patchlevel 12345'.
+
+    * maturity
+        Automatically calculated but can be overriden. This represents the
+        maturity of the distribution as determined by a heuristic. Will be
+        one of 'released' or 'developer'. I'm not entirely convinced this
+        method should be exposed.
+
+    * new
+        Constructor. Accepts no arguments at this time.
+
+    * osname
+        Automatically calculated but can be overriden. This is the operating
+        system name.
+
+    * osvers
+        Automatically calculated but can be overriden. This is the operating
+        system version.
+
+    * report_vers
+        Revision of the internal test report object format.
+
+    * rfc2822_date
+        Automatically calculated but can be overriden. This is the
+        RFC2822-compliant datetime.
+
+    * via
+        The automation wrapping CPAN::Testers::Report. This is usually
+        something like CPAN::Reporter, CPAN::YACSmoke. Optional. Not
+        automatically calculated at the moment, but will be in short-order.
+
+TODO
+    * Make via() work automatically
+    * Do validation on from() ?
+    * Come up with better names for interpreter_vers1 and 2
+    * Improve upon and add more tests
+    * Add tests for error conditions
+    * Enforce rfc2822 semantics on from() ?
+    * Add a validate() method to ensure overall consistency?
+    * Decide what to do about "interpreter"
+    * Not sure I like from(). Separate name and e-mail?
+    * Hmm. What to do about the subject.....
+    * Make sure via() includes self!
+    * Hm. It's 2am, I'll surely think up more tomorrow!
+
+COPYRIGHT
+    Copyright (c) 2007 Adam J. Foxson and the CPAN Testers. All rights
+    reserved.
+
+LICENSE
+    This program is free software; you may redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    * perl
+    * CPAN::Testers
+
+AUTHOR
+    Adam J. Foxson <afoxson@pobox.com>
+
+    With many thanks to:
+
+    * Richard Soderberg <rsod@cpan.org>
+    * Kirrily "Skud" Robert <skud@cpan.org>
+    * Kurt Starsinic <Kurt.Starsinic@isinet.com>
+    * Barbie <barbie@missbarbell.co.uk>
+    * David Golden <dagolden@cpan.org>
+
