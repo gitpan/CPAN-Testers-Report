@@ -14,7 +14,7 @@ use strict;
 use vars qw($VERSION);
 use Time::Local ();
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 local $^W = 1;
 
@@ -34,13 +34,13 @@ sub config {
     my $self = shift;
     if (@_) {
         $self->{_config} = \shift;
-        (my ($version1, $version2, $extra) = $self->_extract_perl_version($self->{_config})) || return;
+        (my ($vers_numeric, $vers_float, $extra) = $self->_extract_perl_version($self->{_config})) || return;
         (my $osname = $self->_extract_osname($self->{_config})) || return;
         (my $osvers = $self->_extract_osvers($self->{_config})) || return;
         (my $archname = $self->_extract_archname($self->{_config})) || return;
 
-        $self->interpreter_vers1($version1);
-        $self->interpreter_vers2($version2);
+        $self->interpreter_vers_numeric($vers_numeric);
+        $self->interpreter_vers_float($vers_float);
         $self->interpreter_vers_extra($extra);
         $self->osname($osname);
         $self->osvers($osvers);
@@ -72,11 +72,9 @@ sub dist {
             return;
         }
 
-        if ($beta) {
-            $self->maturity('developer');
-        }
-        else {
-            $self->maturity('released');
+        if ($self->_is_a_perl_release($self->{_dist})) {
+            $self->error('use perlbug for reporting test results against perl herself');
+            return;
         }
     }
 
@@ -103,7 +101,16 @@ sub error {
 
 sub from {
     my $self = shift;
-    $self->{_from} = shift if @_;
+    if (@_) {
+        $self->{_from} = shift;
+
+        my $rfc2822_compliance_regex = $self->_rfc2822_compliance_regex();
+
+        unless ($self->{_from} =~ $rfc2822_compliance_regex) {
+            $self->error('invalid from; is not RFC 2822 compliant');
+            return;
+        }
+    }
     return $self->{_from};
 }
 
@@ -126,16 +133,16 @@ sub interpreter {
     return $self->{_interpreter};
 }
 
-sub interpreter_vers1 {
+sub interpreter_vers_numeric {
     my $self = shift;
-    $self->{_interpreter_version1} = shift if @_;
-    return $self->{_interpreter_version1};
+    $self->{_interpreter_vers_numeric} = shift if @_;
+    return $self->{_interpreter_vers_numeric};
 }
 
-sub interpreter_vers2 {
+sub interpreter_vers_float {
     my $self = shift;
-    $self->{_interpreter_version2} = shift if @_;
-    return $self->{_interpreter_version2};
+    $self->{_interpreter_vers_float} = shift if @_;
+    return $self->{_interpreter_vers_float};
 }
 
 sub interpreter_vers_extra {
@@ -144,34 +151,29 @@ sub interpreter_vers_extra {
     return $self->{_interpreter_version_extra};
 }
 
-sub maturity {
-    my $self = shift;
-    $self->{_maturity} = shift if @_;
-    return $self->{_maturity};
-}
-
 sub new {
     my $type  = shift;
     my $class = ref($type) || $type;
     my $self  = {
         _archname => undef,     # architecture's name; e.g.: i686-linux-64int
-        _interpreter            => 'perl', # pugs? (dare I say, ponie?) ...
-        _interpreter_vers1      => undef,  # 5.8.8
-        _interpreter_vers2      => undef,  # 5.008008
-        _interpreter_vers_extra => undef,  # patch 1234
         _comments => undef,     # output of failed 'make test'
         _config => undef,       # output of Config::myconfig()
-        _rfc2822_date => undef, # RFC2822-compliant date-time
-        _dist => undef,         # distribution; e.g.: CPAN-Testers-Report-0.01
+        _dist => undef,         # distribution; e.g.: CPAN-Testers-Report-0.02
         _dist_name => undef,    # distribution's name; e.g. CPAN-Testers-Report
-        _dist_vers => undef,    # distribution's version; e.g.: 0.01
+        _dist_vers => undef,    # distribution's version; e.g.: 0.02
+        _from => undef,         # name & e-mail of tester: Foo Bar <foo@bar.com>
         _grade => undef,        # from 'make test'; pass, fail, unknown, or na
-        _maturity => undef,     # 'developer' or 'released'
+        _interpreter              => 'perl', # pugs? (dare I say, ponie?) ...
+        _interpreter_vers_extra   => undef,  # patch 1234
+        _interpreter_vers_float   => undef,  # 5.008008
+        _interpreter_vers_numeric => undef,  # 5.8.8
+        _osname => undef,       # operating system name
         _osvers => undef,       # operating system version; e.g.: 2.6.22-1-k7
         _report_vers => 1,      # uniquely identifies this test report format
                                 # XXX - ^ - THIS MUST BE INCREMENTED ANY TIME
                                 # XXX - | - ANY TEST REPORT METADATA IS ALTERED
-        _from => undef,         # name & e-mail of tester: Foo Bar <foo@bar.com>
+        _rfc2822_date => undef, # RFC2822-compliant date-time
+        _rfc2822_compliance_regex => undef,
         _via => undef,          # caller; e.g.: CPAN, CPANPLUS, CPAN::Reporter
         __error => undef,
     };
@@ -179,6 +181,8 @@ sub new {
     bless $self, $class;
 
     $self->rfc2822_date($self->_format_rfc2822_date());
+    $self->via($self->_compute_via());
+    $self->_rfc2822_compliance_regex($self->_generate_rfc2822_compliance_regex());
 
     return $self;
 }
@@ -209,7 +213,35 @@ sub rfc2822_date {
 sub via {
     my $self = shift;
     $self->{_via} = shift if @_;
-    return $self->{_via};
+
+    my $version;
+    {
+        no strict 'refs';
+        $version = ${__PACKAGE__.'::VERSION'};
+    }
+
+    if (defined $self->{_via}) {
+        return __PACKAGE__ . " $version, $self->{_via}";
+    }
+    else {
+        return __PACKAGE__ . " $version";
+    }
+}
+
+sub _compute_via {
+    my $self = shift;
+    my $package = (caller(1))[0];
+    my $version;
+
+    {   
+        no strict 'refs';
+        $version = ${$package.'::VERSION'};
+    }
+
+    my $via = $package;
+    $via .= " $version" if defined $version;
+
+    return $via;
 }
 
 # Derived from CPAN::DistnameInfo by Graham Barr
@@ -350,6 +382,59 @@ sub _format_rfc2822_date {
       $day, $mday, $month, $year, $hour, $min, $sec, $direc, $tz_hr, $tz_mi;
 }
 
+# Derived from Email::Address by Casey West and Ricardo SIGNES
+sub _generate_rfc2822_compliance_regex {
+    my $self                 = shift;
+    my $COMMENT_NEST_LEVEL   = 2;
+    my $CTL                  = q{\x00-\x1F\x7F};
+    my $special              = q{()<>\\[\\]:;@\\\\,."};
+    my $text                 = qr/[^\x0A\x0D]/;
+    my $quoted_pair          = qr/\\$text/;
+    my $ctext                = qr/(?>[^()\\]+)/;
+    my ($ccontent, $comment) = (q{})x2;
+
+    for (1 .. $COMMENT_NEST_LEVEL) {
+        $ccontent = qr/$ctext|$quoted_pair|$comment/;
+        $comment  = qr/\s*\((?:\s*$ccontent)*\s*\)\s*/;
+    }
+
+    my $cfws           = qr/$comment|\s+/;
+    my $atext          = qq/[^$CTL$special\\s]/;
+    my $atom           = qr/$cfws*$atext+$cfws*/;
+    my $dot_atom_text  = qr/$atext+(?:\.$atext+)*/;
+    my $dot_atom       = qr/$cfws*$dot_atom_text$cfws*/;
+    my $qtext          = qr/[^\\"]/;
+    my $qcontent       = qr/$qtext|$quoted_pair/;
+    my $quoted_string  = qr/$cfws*"$qcontent+"$cfws*/;
+    my $word           = qr/$atom|$quoted_string/;
+    my $simple_word    = qr/$atom|\.|\s*"$qcontent+"\s*/;
+    my $obs_phrase     = qr/$simple_word+/;
+    my $phrase         = qr/$obs_phrase|(?:$word+)/;
+    my $local_part     = qr/$dot_atom|$quoted_string/;
+    my $dtext          = qr/[^\[\]\\]/;
+    my $dcontent       = qr/$dtext|$quoted_pair/;
+    my $domain_literal = qr/$cfws*\[(?:\s*$dcontent)*\s*\]$cfws*/;
+    my $domain         = qr/$dot_atom|$domain_literal/;
+    my $display_name   = $phrase;
+    my $addr_spec      = qr/$local_part\@$domain/;
+    my $angle_addr     = qr/$cfws*<$addr_spec>$cfws*/;
+    my $name_addr      = qr/$display_name?$angle_addr/;
+    my $mailbox        = qr/(?:$name_addr|$addr_spec)$comment*/;
+
+    return $mailbox;
+}
+
+sub _is_a_perl_release {
+    my ($self, $dist) = @_;
+    return $dist =~ /^perl-?\d\.\d/;
+}
+
+sub _rfc2822_compliance_regex {
+    my $self = shift;
+    $self->{_rfc2822_compliance_regex} = shift if @_;
+    return $self->{_rfc2822_compliance_regex};
+}
+
 # Derived from Email::Date by Casey West and Ricardo SIGNES
 sub _tz_diff {
     my $self   = shift;
@@ -377,8 +462,8 @@ CPAN::Testers::Report - Creates CPAN Testers test-report objects
   $test_report->comments('Rejoice!');
   $test_report->config(Config::myconfig()) || die $test_report->error();
   $test_report->dist('Test-Reporter-1.34') || die $test_report->error();
+  $test_report->from('Adam J. Foxson <afoxson@pobox.com>') || die $test_report->error();
   $test_report->grade('pass') || die $test_report->error();
-  $test_report->from('Adam J. Foxson <afoxson@pobox.com>');
 
 =head1 DESCRIPTION
 
@@ -417,7 +502,8 @@ method returns undef, it failed.
 
 Full distribution name and version of which this test report is about. For
 example 'Test-Reporter-1.34'. Mandatory. If this methods returns undef, it
-failed.
+failed. Attempts to call this method with anything resembling a distribution
+of perl itself will not be honored (use perlbug).
 
 =item * B<dist_name>
 
@@ -436,8 +522,10 @@ Returns an error message when an error has occurred.
 =item * B<from>
 
 Name and e-mail address of the tester. For example 'Adam J. Foxson
-<afoxson@pobox.com>'. Optional at the moment, but should probably be
-mandatory, and possibly even rfc2822-compliant.
+<afoxson@pobox.com>'. Optional, but if specified it must be RFC 2822
+compliant. If you ever need to parse this out to separate the name from the
+e-mail address, visit Email::Address. If this method returns undef, it failed
+(i.e., what you specified was not RFC 2822 compliant).
 
 =item * B<grade>
 
@@ -451,28 +539,20 @@ If this method returns undef, it failed.
 
 At the moment always returns 'perl'.
 
-=item * B<interpreter_vers1>
+=item * B<interpreter_vers_numeric>
 
 Automatically calculated but can be overriden. This represents the
-interpreter's version. For example in the format of '5.8.8'. I need to find a
-better name for this method.
+interpreter's version. For example in the format of '5.8.8'.
 
-=item * B<interpreter_vers2>
+=item * B<interpreter_vers_float>
 
 Automatically calculated but can be overriden. This represents the
-interpreter's version. For example in the format of '5.008008'. I need to find
-a better name for this method.
+interpreter's version. For example in the format of '5.008008'.
 
 =item * B<interpreter_vers_extra>
 
 Automatically calculated but can be overriden. This usually represents the
 interpreter's patch/patchlevel, if available. For example 'patchlevel 12345'.
-
-=item * B<maturity>
-
-Automatically calculated but can be overriden. This represents the maturity of
-the distribution as determined by a heuristic. Will be one of 'released' or
-'developer'. I'm not entirely convinced this method should be exposed.
 
 =item * B<new>
 
@@ -499,39 +579,88 @@ datetime.
 
 =item * B<via>
 
-The automation wrapping CPAN::Testers::Report. This is usually something like
-CPAN::Reporter, CPAN::YACSmoke. Optional. Not automatically calculated at the
-moment, but will be in short-order.
+Automatically calculated (based on the caller) but can be overriden. This
+represents the automation wrapping CPAN::Testers::Report. This is usually
+something like CPAN::Reporter, CPAN::YACSmoke.
 
 =back
 
 =head1 TODO
 
+Please excuse me for a few moments while I think aloud publically. :-)
+
 =over 4
-
-=item * Make via() work automatically
-
-=item * Do validation on from() ?
-
-=item * Come up with better names for interpreter_vers1 and 2
-
-=item * Improve upon and add more tests
 
 =item * Add tests for error conditions
 
-=item * Enforce rfc2822 semantics on from() ?
+At a minimum:
+
+=over 4
+
+=item * dist()
+
+=item * from()
+
+=item * grade()
+
+=item * config()
+
+=back
 
 =item * Add a validate() method to ensure overall consistency?
 
+This is not intended to indicate suitablity for any particular transport. This
+is more about verifying that the object contains the minimum necessary data
+and in a correct form to even be considered a valid test report. A transport
+could call this as a sanity check before attempting delivery.
+
+=over 4
+
+=item * a distribution that is parseable into its name and version components
+
+=item * a config that is parseable into its archname, osvers, and perl version components
+
+=item * a from, if specified, must be RFC 2822 compliant
+
+=item * a grade that is one of 'pass', 'fail', 'na', or 'unknown'
+
+=back
+
 =item * Decide what to do about "interpreter"
 
-=item * Not sure I like from(). Separate name and e-mail?
+The idea behind this is that CPAN modules might theoretically be able to be
+run under interpreters other than perl itself. Therefore, it might be a
+potentially valueable endeavor to test this. For example, in the past, ponie
+would have been an example of where this might have occurred. Nowadays, would
+pugs perhaps be a current example?
 
-=item * Hmm. What to do about the subject.....
+The question is whether or not we want to actually accomodate for this
+possibility. Or to restate, do we want to have support for testing CPAN
+distributions with interpreters that are "perl-like"?
 
-=item * Make sure via() includes self!
+=item * Shall the metadata be handled specially (from/date/via) ?
 
-=item * Hm. It's 2am, I'll surely think up more tomorrow!
+These are all three bits of data that are arguably part of a test-report, but
+a test-report can be fully 100% valid in all of their absence. As such, I'm
+wondering if we want to handle these differently/specially. Food for thought!
+
+=item * RFC 2822 compliance regex shouldn't be assembled on a per object basis
+
+This is inefficient and needs to be addressed.
+
+=item * Hmm. What to do about the subject...
+
+Doesn't really belong in this module (because the concept of 'Subject' is
+specfic only to a particular class of transport), but we don't want each e-mail
+based transport reimplementing this functionality or duplicating code. And, we
+need the flexibility to change it in the future without major disruption. So
+then, what we might want to do is create a new distribution that provides
+methods to do both parsing and generating of subjects, once passed a
+previously generated subject or CPAN::Testers::Report object.
+
+=item * Hmm. What to do about the "stringified formatted report"...
+
+Almost 3am! Time for bed... More to come tomorrow...
 
 =back
 

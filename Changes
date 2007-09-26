@@ -1,4 +1,23 @@
 Revision history for Perl extension CPAN::Testers::Report.
 
+0.02    Wed Sep 26 02:30:00 EDT 2007
+        - Quadrupled the number of tests
+        - Removed maturity() from the API
+        - Changed interpreter_vers1 to interpreter_vers_numeric
+        - Changed interpreter_vers2 to interpreter_vers_float
+        - via() is now automatically calculated based on the caller
+        - via() also now includes itself (C::T::R)
+        - from(), if specified, must be RFC 2822 compliant
+        - We now reject attempts to report on perl itself, as opposed to a
+          CPAN distribution (use perlbug!)
+        - Notated the dependency on Time::Local in Makefile.PL
+        - Corrected an initialization defect with osname()
+        - Plenty of brain-storming in the TODO section of the POD
+        - Started work on the new/separate transport distributions. This should
+          help solidify and validate the API of C::T::R
+        - In addition to the constructor already automatically populating the
+          datetime, it now automatically calculates via() and the RFC 2822
+          compliance regex (see TODO though)
+
 0.01    Tue Sep 25 02:30:00 EDT 2007
         - Initial release

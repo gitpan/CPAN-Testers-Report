@@ -6,6 +6,9 @@ WriteMakefile(
     'PM' => {
         'lib/CPAN/Testers/Report.pm' => '$(INST_LIBDIR)/Report.pm',
     },
+    'PREREQ_PM' => {
+        'Time::Local' => 0,
+    },
     'VERSION_FROM' => 'lib/CPAN/Testers/Report.pm',
     'dist' => {
         'COMPRESS' => 'gzip --best',
