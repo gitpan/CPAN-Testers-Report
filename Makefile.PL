@@ -8,6 +8,7 @@ WriteMakefile(
     },
     'PREREQ_PM' => {
         'Time::Local' => 0,
+        'Config' => 0,
     },
     'VERSION_FROM' => 'lib/CPAN/Testers/Report.pm',
     'dist' => {

@@ -3,14 +3,12 @@ NAME
 
 SYNOPSIS
       use CPAN::Testers::Report;
-      use Config;
 
-      my $test_report = CPAN::Testers::Report->new();
-      $test_report->comments('Rejoice!');
-      $test_report->config(Config::myconfig()) || die $test_report->error();
-      $test_report->dist('Test-Reporter-1.34') || die $test_report->error();
-      $test_report->from('Adam J. Foxson <afoxson@pobox.com>') || die $test_report->error();
-      $test_report->grade('pass') || die $test_report->error();
+      my $test_report = CPAN::Testers::Report->new() || die CPAN::Testers::Report->errstr();
+      $test_report->comments('...This is a computer-generated test report...');
+      $test_report->dist('Test-Reporter-1.34') || die $test_report->errstr();
+      $test_report->from('Adam J. Foxson <afoxson@pobox.com>') || die $test_report->errstr();
+      $test_report->grade('pass') || die $test_report->errstr();
 
 DESCRIPTION
     Welcome to CPAN::Testers::Report. This is the first distribution in the
@@ -19,53 +17,150 @@ DESCRIPTION
     complete, this distribution and its constituents will obsolete
     Test::Reporter.
 
-    This module provides an abstraction for test reports. Objects will
-    encapsulate all data and information about a single, specific test
-    report. These objects can then be submitted to a user's transport of
+    This module provides an abstraction for test reports. An object of this
+    type will encapsulate all data and information about a single, specific
+    test report. This object can then be submitted to a user's transport of
     choice for delivery.
 
     This is a developer's release. The interface is not stable; The API may
     change at any time without notice. This module is not yet recommended
     for general use.
 
-METHODS
-    * archname
-        Automatically calculated but can be overriden. This is a short name
-        to characterize the current architecture.
+SERIALIZATION
+    These objects are generated specifically with serialization in mind.
 
+    Below, please find a sample test report in YAML:
+
+     --- !!perl/hash:CPAN::Testers::Report
+     __errstr: ~
+     _comments: |
+      Dear Adam J. Foxson,
+      
+      This is a computer-generated report for CPAN-Testers-Report-0.03
+      on perl-5.8.8, created automatically by CPAN-Reporter-0.99_15 and sent 
+      to the CPAN Testers mailing list.  
+  
+      If you have received this email directly, it is because the person testing 
+      your distribution chose to send a copy to your CPAN email address; there 
+      may be a delay before the official report is received and processed 
+      by CPAN Testers.
+  
+      Thank you for uploading your work to CPAN.  Congratulations!
+      All tests were successful.
+  
+      <snip!>
+     _config:
+      alignbytes: 8
+      archname: darwin-2level
+      byteorder: 1234
+      cc: /usr/bin/gcc-4.0
+      cccdlflags: ' '
+      ccdlflags: ' '
+      ccflags: -I/opt/local/include -fno-common -DPERL_DARWIN -no-cpp-precomp -fno-strict-aliasing -pipe -Wdeclaration-after-statement -I/opt/local/include
+      ccversion: ''
+      config_args: -des -Dprefix=/opt/local -Dccflags=-I'/opt/local/include' -Dldflags=-L/opt/local/lib -Dvendorprefix=/opt/local -Dcc=/usr/bin/gcc-4.0
+      cppflags: -no-cpp-precomp -I/opt/local/include -fno-common -DPERL_DARWIN -no-cpp-precomp -fno-strict-aliasing -pipe -Wdeclaration-after-statement -I/opt/local/include
+      d_dlsymun: ~
+      d_longdbl: define
+      d_longlong: define
+      d_sfio: ~
+      d_sigaction: define
+      dlext: bundle
+      dlsrc: dl_dlopen.xs
+      doublesize: 8
+      gccosandvers: ''
+      gccversion: '4.0.1 (Apple Computer, Inc. build 5367)'
+      gnulibc_version: ''
+      hint: recommended
+      intsize: 4
+      ivsize: 4
+      ivtype: long
+      ld: env MACOSX_DEPLOYMENT_TARGET=10.3 cc
+      lddlflags: -L/opt/local/lib -bundle -undefined dynamic_lookup
+      ldflags: -L/opt/local/lib
+      libc: /usr/lib/libc.dylib
+      libperl: libperl.a
+      libpth: /opt/local/lib /usr/lib
+      libs: -ldbm -ldl -lm -lc
+      longdblsize: 16
+      longlongsize: 8
+      longsize: 4
+      lseeksize: 8
+      nvsize: 8
+      nvtype: double
+      optimize: -O3
+      osname: darwin
+      osvers: 8.10.1
+      perllibs: -ldl -lm -lc
+      prefix: /opt/local
+      prototype: define
+      ptrsize: 4
+      so: dylib
+      uname: uname
+      use5005threads: ~
+      use64bitall: ~
+      use64bitint: ~
+      useithreads: ~
+      uselargefiles: define
+      uselongdouble: ~
+      usemultiplicity: ~
+      usemymalloc: n
+      useperlio: define
+      useposix: true
+      useshrplib: false
+      usesocks: ~
+      usethreads: ~
+      vendorprefix: /opt/local
+     _dist: CPAN-Testers-Report-0.03
+     _dist_name: CPAN-Testers-Report
+     _dist_vers: 0.03
+     _from: 'Adam J. Foxson <afoxson@pobox.com>'
+     _grade: PASS
+     _interpreter: perl
+     _interpreter_vers_extra: ~
+     _interpreter_vers_float: 5.008008
+     _interpreter_vers_numeric: 5.8.8
+     _interpreter_version_extra: ''
+     _report_vers: 1
+     _rfc2822_date: 'Wed, 3 Oct 2007 23:30:13 -0400'
+     _via: 'CPAN::Testers::Report 0.03, CPAN::Reporter 0.99_15'
+
+METHODS
     * comments
         User-specified comments to include with the test report. This is
         oftentimes the output of a failed 'make test'. Optional.
 
     * config
-        This method should be the recipient of Config::myconfig().
-        Mandatory. If this method returns undef, it failed.
+        Without an argument returns a list of all of the major configuration
+        items (osname, osvers, archname, byteorder, cc, libs, et al...) If
+        given an argument will return the value associated with one of those
+        configuration items
 
     * dist
         Full distribution name and version of which this test report is
-        about. For example 'Test-Reporter-1.34'. Mandatory. If this methods
+        about. For example 'Test-Reporter-1.34'. Mandatory. If this method
         returns undef, it failed. Attempts to call this method with anything
         resembling a distribution of perl itself will not be honored (use
         perlbug).
 
     * dist_name
-        Automatically calculated but can be overriden. This represents the
+        Automatically calculated but can be overridden. This represents the
         distribution's name only. For example 'Test-Reporter'.
 
     * dist_vers
-        Automatically calculated but can be overriden. This represents the
+        Automatically calculated but can be overridden. This represents the
         distribution's version only. For example '1.34'.
 
-    * error
-        Returns an error message when an error has occurred.
+    * errstr
+        Returns the error message from the last error that occurred.
 
     * from
         Name and e-mail address of the tester. For example 'Adam J. Foxson
-        <afoxson@pobox.com>'. Optional, but if specified it must be RFC 2822
-        compliant. If you ever need to parse this out to separate the name
-        from the e-mail address, visit Email::Address. If this method
-        returns undef, it failed (i.e., what you specified was not RFC 2822
-        compliant).
+        <afoxson@pobox.com>'. Mandatory, and must be RFC 2822 compliant.
+        Name may be omitted. If you ever need to parse this out to separate
+        the name from the e-mail address, visit Email::Address. If this
+        method returns undef, it failed (i.e., what was specified was not
+        RFC 2822 compliant). This is metadata.
 
     * grade
         Grade for the result of 'make test'. Must be pass, fail, na, or
@@ -76,69 +171,47 @@ METHODS
         failed.
 
     * interpreter
-        At the moment always returns 'perl'.
+        At the moment always returns 'perl' but can be overridden.
 
     * interpreter_vers_numeric
-        Automatically calculated but can be overriden. This represents the
+        Automatically calculated but can be overridden. This represents the
         interpreter's version. For example in the format of '5.8.8'.
 
     * interpreter_vers_float
-        Automatically calculated but can be overriden. This represents the
+        Automatically calculated but can be overridden. This represents the
         interpreter's version. For example in the format of '5.008008'.
 
     * interpreter_vers_extra
-        Automatically calculated but can be overriden. This usually
+        Automatically calculated but can be overridden. This usually
         represents the interpreter's patch/patchlevel, if available. For
         example 'patchlevel 12345'.
 
     * new
-        Constructor. Accepts no arguments at this time.
-
-    * osname
-        Automatically calculated but can be overriden. This is the operating
-        system name.
-
-    * osvers
-        Automatically calculated but can be overriden. This is the operating
-        system version.
+        Constructor. Accepts no arguments at this time. If this method
+        returns undef, it failed.
 
     * report_vers
         Revision of the internal test report object format.
 
     * rfc2822_date
-        Automatically calculated but can be overriden. This is the
-        RFC2822-compliant datetime.
+        Automatically calculated but can be overridden. This is the
+        RFC2822-compliant datetime. This is metadata.
+
+    * validate
+        Accepts no arguments. Returns true if the object represents a valid
+        test report. Returns false and sets errstr() if the object does not
+        represent a valid test report. The ensures that that distribution
+        specified is parseable into its name/version constituents, that the
+        grade is one of 'pass', 'fail', 'na', or 'unknown', and that from is
+        present and RFC 2822 compliant
 
     * via
-        Automatically calculated (based on the caller) but can be overriden.
-        This represents the automation wrapping CPAN::Testers::Report. This
-        is usually something like CPAN::Reporter, CPAN::YACSmoke.
+        Automatically calculated (based on the caller) but can be
+        overridden. This represents the automation wrapping
+        CPAN::Testers::Report. This is usually something like
+        CPAN::Reporter, CPAN::YACSmoke. This is metadata.
 
 TODO
-    Please excuse me for a few moments while I think aloud publically. :-)
-
-    * Add tests for error conditions
-        At a minimum:
-
-        * dist()
-        * from()
-        * grade()
-        * config()
-
-    * Add a validate() method to ensure overall consistency?
-        This is not intended to indicate suitablity for any particular
-        transport. This is more about verifying that the object contains the
-        minimum necessary data and in a correct form to even be considered a
-        valid test report. A transport could call this as a sanity check
-        before attempting delivery.
-
-        * a distribution that is parseable into its name and version
-        components
-        * a config that is parseable into its archname, osvers, and perl
-        version components
-        * a from, if specified, must be RFC 2822 compliant
-        * a grade that is one of 'pass', 'fail', 'na', or 'unknown'
-
     * Decide what to do about "interpreter"
         The idea behind this is that CPAN modules might theoretically be
         able to be run under interpreters other than perl itself. Therefore,
@@ -150,28 +223,6 @@ TODO
         The question is whether or not we want to actually accomodate for
         this possibility. Or to restate, do we want to have support for
         testing CPAN distributions with interpreters that are "perl-like"?
-
-    * Shall the metadata be handled specially (from/date/via) ?
-        These are all three bits of data that are arguably part of a
-        test-report, but a test-report can be fully 100% valid in all of
-        their absence. As such, I'm wondering if we want to handle these
-        differently/specially. Food for thought!
-
-    * RFC 2822 compliance regex shouldn't be assembled on a per object basis
-        This is inefficient and needs to be addressed.
-
-    * Hmm. What to do about the subject...
-        Doesn't really belong in this module (because the concept of
-        'Subject' is specfic only to a particular class of transport), but
-        we don't want each e-mail based transport reimplementing this
-        functionality or duplicating code. And, we need the flexibility to
-        change it in the future without major disruption. So then, what we
-        might want to do is create a new distribution that provides methods
-        to do both parsing and generating of subjects, once passed a
-        previously generated subject or CPAN::Testers::Report object.
-
-    * Hmm. What to do about the "stringified formatted report"...
-        Almost 3am! Time for bed... More to come tomorrow...
 
 COPYRIGHT
     Copyright (c) 2007 Adam J. Foxson and the CPAN Testers. All rights

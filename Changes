@@ -1,5 +1,21 @@
 Revision history for Perl extension CPAN::Testers::Report.
 
+0.03    Wed Oct 03 23:00:00 EDT 2007
+        - improved documentation and included serialization example
+        - error() renamed to errstr()
+        - errstr() now supports class-based errors
+        - removed archname() method
+        - removed osname() method
+        - removed osvers() method
+        - repurposed config() method
+        - config determination now occurs automatically at the constructor
+        - local configuration is no longer represented as the output from
+          Config::myconfig() - each major config is split out and distinct
+        - constructor now sets errstr and returns undef on failure
+        - RFC 2822 compliance regex no longer assembled on a per-object basis
+        - validate() added - ensures from/grade/dist are valid
+        - many more tests added - over 97% test coverage now! =)
+
 0.02    Wed Sep 26 02:30:00 EDT 2007
         - Quadrupled the number of tests
         - Removed maturity() from the API

@@ -3,43 +3,46 @@
 use strict;
 use Test;
 use Config;
+use blib;
 use CPAN::Testers::Report;
 use vars qw($VERSION);
 
-BEGIN { plan tests => 74 }
+BEGIN { plan tests => 113 }
 
 my $report = CPAN::Testers::Report->new();
 ok(defined $report);
 
 my $test_report = CPAN::Testers::Report->new();
+ok(defined $test_report);
 $test_report->comments('Rejoice!');
-$test_report->config(Config::myconfig()) || die $test_report->error();
-$test_report->dist('Test-Reporter-1.34') || die $test_report->error();
-$test_report->grade('pass') || die $test_report->error();
+$test_report->dist('Test-Reporter-1.34');
+$test_report->grade('pass');
 $test_report->from('Adam J. Foxson <afoxson@pobox.com>');
 
-ok($test_report->archname(), $Config{archname});
 ok($test_report->comments(), 'Rejoice!');
-ok(${$test_report->config()}, Config::myconfig());
 ok($test_report->dist(), 'Test-Reporter-1.34');
 ok($test_report->dist_name(), 'Test-Reporter');
 ok($test_report->dist_vers(), '1.34');
 ok($test_report->from(), 'Adam J. Foxson <afoxson@pobox.com>');
 ok($test_report->grade(), 'PASS');
 ok($test_report->interpreter(), 'perl');
+$test_report->interpreter('pugs');
+ok($test_report->interpreter(), 'pugs');
 ok(defined $test_report->interpreter_vers_numeric()); # hand-wave
 ok(defined $test_report->interpreter_vers_float()); # hand-wave
 ok(defined $test_report->interpreter_vers_extra()); # hand-wave
-ok($test_report->osname(), $Config{osname});
-ok($test_report->osvers(), $Config{osvers});
 ok($test_report->report_vers(), 1);
 ok(defined $test_report->rfc2822_date()); # hand-wave
-ok($test_report->via(), 'CPAN::Testers::Report 0.02, main');
+ok($test_report->via(), 'CPAN::Testers::Report 0.03, main');
+$test_report->via('woo');
+ok($test_report->via(), 'CPAN::Testers::Report 0.03, woo');
+ok(scalar(() = $test_report->config()) > 5);
+ok(not defined $test_report->config('wibbleplinkifidosaysomyself'));
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 my $test_report2 = CPAN::Testers::Report->new();
 ok(defined $test_report2);
-ok($test_report2->via(), 'CPAN::Testers::Report 0.02, main 0.02');
+ok($test_report2->via(), 'CPAN::Testers::Report 0.03, main 0.03');
 ok($test_report2->_is_a_perl_release('perl-5.9.3'));
 ok($test_report2->_is_a_perl_release('perl-5.9.2'));
 ok($test_report2->_is_a_perl_release('perl-5.9.1'));
@@ -94,3 +97,82 @@ ok(not $test_report2->_is_a_perl_release('Perl-Tags-0.23'));
 ok(not $test_report2->_is_a_perl_release('Perl-Tidy-20060719'));
 ok(not $test_report2->_is_a_perl_release('Perl-Squish-0.02'));
 ok(not $test_report2->_is_a_perl_release('Perl-Visualize-1.02'));
+
+my $test_report3 = CPAN::Testers::Report->new();
+ok(defined $test_report3);
+ok(not defined $test_report3->dist(undef));
+ok($test_report3->errstr eq 'distribution not specified');
+ok(not defined $test_report3->dist('Fluffy'));
+ok($test_report3->errstr eq 'unable to determine distribution version for \'Fluffy\'');
+ok(not defined $test_report3->dist('perl-5.6.1'));
+ok($test_report3->errstr eq 'use perlbug for reporting test results against perl herself');
+ok(not defined $test_report3->from(undef));
+ok($test_report3->errstr eq 'from not specified');
+ok(not defined $test_report3->from('mooooo'));
+ok($test_report3->errstr eq 'invalid from; is not RFC 2822 compliant');
+ok(not defined $test_report3->grade(undef));
+ok($test_report3->errstr eq 'grade not specified');
+ok(not defined $test_report3->grade('satisfactory'));
+ok($test_report3->errstr eq 'invalid grade; choose: pass, fail, unknown, na');
+my $foo = $test_report3->new();
+ok(defined $foo);
+ok(ref $foo eq 'CPAN::Testers::Report');
+
+{
+    no warnings 'redefine';
+    local *Config::myconfig = sub {1};
+    ok(not defined CPAN::Testers::Report->new());
+    ok(CPAN::Testers::Report->errstr() eq 'unable to determine perl version');
+}
+
+my $test_report4 = CPAN::Testers::Report->new();
+ok(defined $test_report4);
+$test_report4->dist('Test-Reporter-1.34');
+$test_report4->grade('pass');
+$test_report4->from('Adam J. Foxson <afoxson@pobox.com>');
+ok($test_report4->validate());
+
+my $test_report5 = CPAN::Testers::Report->new();
+ok(defined $test_report5);
+$test_report5->dist('Test-Reporter-1.34');
+$test_report5->grade('xass');
+$test_report5->from('Adam J. Foxson <afoxson@pobox.com>');
+ok(not $test_report5->validate());
+
+my $test_report6 = CPAN::Testers::Report->new();
+ok(defined $test_report6);
+$test_report6->dist('Test-Reporter-1.34');
+$test_report6->grade('pass');
+$test_report6->from('blooooop');
+ok(not $test_report6->validate());
+
+my $test_report7 = CPAN::Testers::Report->new();
+ok(defined $test_report7);
+$test_report7->grade('pass');
+$test_report7->from('Adam J. Foxson <afoxson@pobox.com>');
+ok(not $test_report7->validate());
+
+my $test_report8 = CPAN::Testers::Report->new();
+ok(defined $test_report8);
+$test_report8->dist('Test-Reporter');
+$test_report8->grade('pass');
+$test_report8->from('Adam J. Foxson <afoxson@pobox.com>');
+ok(not $test_report8->validate());
+
+my $test_report9 = CPAN::Testers::Report->new();
+ok(defined $test_report9);
+$test_report9->dist('perl-5.6.1');
+$test_report9->grade('pass');
+$test_report9->from('Adam J. Foxson <afoxson@pobox.com>');
+ok(not $test_report9->validate());
+
+my $test_report10 = CPAN::Testers::Report->new();
+ok(defined $test_report10);
+ok(not defined $test_report10->_distname_info());
+ok(not defined $test_report10->_distname_info(undef));
+ok(not defined $test_report10->_distname_info(1));
+my ($c, $d, $e) = $test_report10->_distname_info('Unicode-Collate-Standard-V3_1_1-0.1');
+ok($c, 'Unicode-Collate-Standard-V3_1_1');
+ok($d, '0.1');
+ok(not defined $e);
+($c, $d, $e) = $test_report10->_distname_info('foo-55r');
