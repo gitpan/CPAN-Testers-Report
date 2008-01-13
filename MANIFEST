@@ -1,5 +1,5 @@
-.gitignore
 Changes
+COPYING
 INSTALL
 lib/CPAN/Testers/Report.pm
 Makefile.PL

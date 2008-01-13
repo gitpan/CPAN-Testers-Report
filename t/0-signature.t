@@ -1,7 +1,16 @@
 #!/usr/bin/perl
 
 use strict;
-use Test::More;
+
+BEGIN {
+    if (!eval { require Test::More; 1 }) {
+        print "1..0 # Skip Test::More not present; skipping";
+        exit;
+    }
+    else {
+        Test::More->import();
+    }
+};
 
 if (!$ENV{TEST_SIGNATURE}) {
     plan skip_all => 

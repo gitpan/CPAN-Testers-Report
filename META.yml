@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                CPAN-Testers-Report
-version:             0.03
+version:             0.04
 abstract:            Creates CPAN Testers test-report objects
 license:             perl
 generated_by:        ExtUtils::MakeMaker version 6.36
@@ -13,3 +13,9 @@ meta-spec:
     version: 1.2
 author:
     - Adam J. Foxson <afoxson@pobox.com>
+resources:
+    license: http://dev.perl.org/licenses/
+    homepage: http://code.google.com/p/cpan-testers-report/
+    bugtracker: http://code.google.com/p/cpan-testers-report/issues/list
+    Repository: http://eclipse.resort.org/git/gitweb.cgi?p=cpan-testers-report.git
+    MailingList: http://groups.google.com/group/cpan-testers-report

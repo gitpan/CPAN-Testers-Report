@@ -1,5 +1,18 @@
 Revision history for Perl extension CPAN::Testers::Report.
 
+0.04    Sun Jan 13 16:00:00 EDT 2008
+        - added method 'environment_variables'
+        - added method 'have_prerequisites'
+        - added method 'make_test_output'
+        - added method 'need_prerequisites'
+        - added method 'perl_special_variables'
+        - added method 'perl_toolchain_modules'
+        - retooled object-specific error mechanism
+        - improved documentation
+        - added many additional tests
+        - adjusted copyright banners for the new year
+        - corrected metadata for bug tracker, repository, etc..
+
 0.03    Wed Oct 03 23:00:00 EDT 2007
         - improved documentation and included serialization example
         - error() renamed to errstr()

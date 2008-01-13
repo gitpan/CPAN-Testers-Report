@@ -7,7 +7,7 @@ use blib;
 use CPAN::Testers::Report;
 use vars qw($VERSION);
 
-BEGIN { plan tests => 113 }
+BEGIN { plan tests => 141 }
 
 my $report = CPAN::Testers::Report->new();
 ok(defined $report);
@@ -33,16 +33,16 @@ ok(defined $test_report->interpreter_vers_float()); # hand-wave
 ok(defined $test_report->interpreter_vers_extra()); # hand-wave
 ok($test_report->report_vers(), 1);
 ok(defined $test_report->rfc2822_date()); # hand-wave
-ok($test_report->via(), 'CPAN::Testers::Report 0.03, main');
+ok($test_report->via(), 'CPAN::Testers::Report 0.04, main');
 $test_report->via('woo');
-ok($test_report->via(), 'CPAN::Testers::Report 0.03, woo');
+ok($test_report->via(), 'CPAN::Testers::Report 0.04, woo');
 ok(scalar(() = $test_report->config()) > 5);
 ok(not defined $test_report->config('wibbleplinkifidosaysomyself'));
 
 $VERSION = '0.03';
 my $test_report2 = CPAN::Testers::Report->new();
 ok(defined $test_report2);
-ok($test_report2->via(), 'CPAN::Testers::Report 0.03, main 0.03');
+ok($test_report2->via(), 'CPAN::Testers::Report 0.04, main 0.03');
 ok($test_report2->_is_a_perl_release('perl-5.9.3'));
 ok($test_report2->_is_a_perl_release('perl-5.9.2'));
 ok($test_report2->_is_a_perl_release('perl-5.9.1'));
@@ -176,3 +176,49 @@ ok($c, 'Unicode-Collate-Standard-V3_1_1');
 ok($d, '0.1');
 ok(not defined $e);
 ($c, $d, $e) = $test_report10->_distname_info('foo-55r');
+
+my $test_report11 = CPAN::Testers::Report->new();
+ok(defined $test_report11);
+$test_report11->make_test_output('test blah blah');
+ok($test_report11->make_test_output() eq 'test blah blah');
+ok(not $test_report11->make_test_output() eq 'test blah bla');
+
+my $test_report12 = CPAN::Testers::Report->new();
+ok(defined $test_report12);
+$test_report12->environment_variables({foo => 'bar', wibble => 'plink'});
+ok((() = $test_report12->environment_variables()) == 2);
+ok($test_report12->environment_variables('foo') eq 'bar');
+ok($test_report12->environment_variables('wibble') eq 'plink');
+ok(not $test_report12->environment_variables('wibble') eq 'plinx');
+
+my $test_report13 = CPAN::Testers::Report->new();
+ok(defined $test_report13);
+$test_report13->have_prerequisites({foo => 'bar', wibble => 'plink'});
+ok((() = $test_report13->have_prerequisites()) == 2);
+ok($test_report13->have_prerequisites('foo') eq 'bar');
+ok($test_report13->have_prerequisites('wibble') eq 'plink');
+ok(not $test_report13->have_prerequisites('wibble') eq 'plinx');
+
+my $test_report14 = CPAN::Testers::Report->new();
+ok(defined $test_report14);
+$test_report14->need_prerequisites({foo => 'bar', wibble => 'plink'});
+ok((() = $test_report14->need_prerequisites()) == 2);
+ok($test_report14->need_prerequisites('foo') eq 'bar');
+ok($test_report14->need_prerequisites('wibble') eq 'plink');
+ok(not $test_report14->need_prerequisites('wibble') eq 'plinx');
+
+my $test_report15 = CPAN::Testers::Report->new();
+ok(defined $test_report15);
+$test_report15->perl_special_variables({foo => 'bar', wibble => 'plink'});
+ok((() = $test_report15->perl_special_variables()) == 2);
+ok($test_report15->perl_special_variables('foo') eq 'bar');
+ok($test_report15->perl_special_variables('wibble') eq 'plink');
+ok(not $test_report15->perl_special_variables('wibble') eq 'plinx');
+
+my $test_report16 = CPAN::Testers::Report->new();
+ok(defined $test_report16);
+$test_report16->perl_toolchain_modules({foo => 'bar', wibble => 'plink'});
+ok((() = $test_report16->perl_toolchain_modules()) == 2);
+ok($test_report16->perl_toolchain_modules('foo') eq 'bar');
+ok($test_report16->perl_toolchain_modules('wibble') eq 'plink');
+ok(not $test_report16->perl_toolchain_modules('wibble') eq 'plinx');

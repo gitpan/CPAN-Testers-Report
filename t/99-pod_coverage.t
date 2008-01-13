@@ -1,4 +1,13 @@
-use Test::More;
+BEGIN {
+    if (!eval { require Test::More; 1 }) {
+        print "1..0 # Skip Test::More not present; skipping";
+        exit;
+    }
+    else {
+        Test::More->import();
+    }
+};
+
 plan skip_all => "Skipping author tests" if not $ENV{AUTHOR_TESTING};
 
 my $min_tpc = 1.08;

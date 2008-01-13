@@ -3,158 +3,165 @@ NAME
 
 SYNOPSIS
       use CPAN::Testers::Report;
+      use JSON::DWIW;
 
-      my $test_report = CPAN::Testers::Report->new() || die CPAN::Testers::Report->errstr();
-      $test_report->comments('...This is a computer-generated test report...');
-      $test_report->dist('Test-Reporter-1.34') || die $test_report->errstr();
-      $test_report->from('Adam J. Foxson <afoxson@pobox.com>') || die $test_report->errstr();
-      $test_report->grade('pass') || die $test_report->errstr();
+      my $serialized_report;
+
+      {
+        my $test_report = CPAN::Testers::Report->new() ||
+            die CPAN::Testers::Report->errstr();
+        $test_report->comments('..This is a computer-generated test report..');
+        $test_report->dist('Test-Reporter-1.34') || die $test_report->errstr();
+        $test_report->from('Adam J. Foxson <afoxson@pobox.com>') ||
+            die $test_report->errstr();
+        $test_report->grade('pass') || die $test_report->errstr();
+
+        # generate a JSON serialization of test-report object ("client side")
+        my $json_obj = JSON::DWIW->new({pretty => 1});
+        $serialized_report = $json_obj->to_json($test_report);
+      }
+
+      # transport magic pixie dust! ($serialized_report transmitted via HTTP)
+
+      {
+        # reconstitue the object ("server side")
+        my $json_obj = JSON::DWIW->new();
+        my $test_report = $json_obj->from_json($serialized_report);
+        bless $test_report, 'CPAN::Testers::Report';
+
+        # methods may now be called against the reconstituted object..
+        print $test_report->grade(), "\n";
+      }
 
 DESCRIPTION
-    Welcome to CPAN::Testers::Report. This is the first distribution in the
-    CPAN::Testers namespace. This module is designed to be part of the
-    next-generation implementation of the CPAN Tester's stack. When
-    complete, this distribution and its constituents will obsolete
-    Test::Reporter.
+    This module is a component of the next-generation implementation of the
+    CPAN Tester's stack. Once completed, this distribution and its
+    constituents will obsolete Test::Reporter.
 
     This module provides an abstraction for test reports. An object of this
     type will encapsulate all data and information about a single, specific
     test report. This object can then be submitted to a user's transport of
     choice for delivery.
 
-    This is a developer's release. The interface is not stable; The API may
-    change at any time without notice. This module is not yet recommended
-    for general use.
+    This is a developer's release. The interface is not stable (but will be
+    soon); The API may change at any time without notice. This module is not
+    yet recommended for general use, but testing is highly encouraged.
 
 SERIALIZATION
     These objects are generated specifically with serialization in mind.
 
-    Below, please find a sample test report in YAML:
+    Below, please find a sample test report in JSON:
 
-     --- !!perl/hash:CPAN::Testers::Report
-     __errstr: ~
-     _comments: |
-      Dear Adam J. Foxson,
-      
-      This is a computer-generated report for CPAN-Testers-Report-0.03
-      on perl-5.8.8, created automatically by CPAN-Reporter-0.99_15 and sent 
-      to the CPAN Testers mailing list.  
-  
-      If you have received this email directly, it is because the person testing 
-      your distribution chose to send a copy to your CPAN email address; there 
-      may be a delay before the official report is received and processed 
-      by CPAN Testers.
-  
-      Thank you for uploading your work to CPAN.  Congratulations!
-      All tests were successful.
-  
-      <snip!>
-     _config:
-      alignbytes: 8
-      archname: darwin-2level
-      byteorder: 1234
-      cc: /usr/bin/gcc-4.0
-      cccdlflags: ' '
-      ccdlflags: ' '
-      ccflags: -I/opt/local/include -fno-common -DPERL_DARWIN -no-cpp-precomp -fno-strict-aliasing -pipe -Wdeclaration-after-statement -I/opt/local/include
-      ccversion: ''
-      config_args: -des -Dprefix=/opt/local -Dccflags=-I'/opt/local/include' -Dldflags=-L/opt/local/lib -Dvendorprefix=/opt/local -Dcc=/usr/bin/gcc-4.0
-      cppflags: -no-cpp-precomp -I/opt/local/include -fno-common -DPERL_DARWIN -no-cpp-precomp -fno-strict-aliasing -pipe -Wdeclaration-after-statement -I/opt/local/include
-      d_dlsymun: ~
-      d_longdbl: define
-      d_longlong: define
-      d_sfio: ~
-      d_sigaction: define
-      dlext: bundle
-      dlsrc: dl_dlopen.xs
-      doublesize: 8
-      gccosandvers: ''
-      gccversion: '4.0.1 (Apple Computer, Inc. build 5367)'
-      gnulibc_version: ''
-      hint: recommended
-      intsize: 4
-      ivsize: 4
-      ivtype: long
-      ld: env MACOSX_DEPLOYMENT_TARGET=10.3 cc
-      lddlflags: -L/opt/local/lib -bundle -undefined dynamic_lookup
-      ldflags: -L/opt/local/lib
-      libc: /usr/lib/libc.dylib
-      libperl: libperl.a
-      libpth: /opt/local/lib /usr/lib
-      libs: -ldbm -ldl -lm -lc
-      longdblsize: 16
-      longlongsize: 8
-      longsize: 4
-      lseeksize: 8
-      nvsize: 8
-      nvtype: double
-      optimize: -O3
-      osname: darwin
-      osvers: 8.10.1
-      perllibs: -ldl -lm -lc
-      prefix: /opt/local
-      prototype: define
-      ptrsize: 4
-      so: dylib
-      uname: uname
-      use5005threads: ~
-      use64bitall: ~
-      use64bitint: ~
-      useithreads: ~
-      uselargefiles: define
-      uselongdouble: ~
-      usemultiplicity: ~
-      usemymalloc: n
-      useperlio: define
-      useposix: true
-      useshrplib: false
-      usesocks: ~
-      usethreads: ~
-      vendorprefix: /opt/local
-     _dist: CPAN-Testers-Report-0.03
-     _dist_name: CPAN-Testers-Report
-     _dist_vers: 0.03
-     _from: 'Adam J. Foxson <afoxson@pobox.com>'
-     _grade: PASS
-     _interpreter: perl
-     _interpreter_vers_extra: ~
-     _interpreter_vers_float: 5.008008
-     _interpreter_vers_numeric: 5.8.8
-     _interpreter_version_extra: ''
-     _report_vers: 1
-     _rfc2822_date: 'Wed, 3 Oct 2007 23:30:13 -0400'
-     _via: 'CPAN::Testers::Report 0.03, CPAN::Reporter 0.99_15'
+    { "_interpreter_vers_numeric":"5.8.8", "_grade":"PASS", "_from":"Adam J.
+    Foxson <afoxson@pobox.com>", "_config": { "gnulibc_version":"",
+    "uname":"uname", "longdblsize":"16", "nvtype":"double", "ccdlflags":" ",
+    "cppflags":"-no-cpp-precomp -g -pipe -fno-common -DPERL_DARWIN
+    -no-cpp-precomp -fno-strict-aliasing -Wdeclaration-after-statement
+    -I\/usr\/local\/include", "cc":"cc",
+    "archname":"darwin-thread-multi-2level", "config_args":"-ds -e
+    -Dprefix=\/usr -Dccflags=-g -pipe -Dldflags=-Dman3ext=3pm -Duseithreads
+    -Duseshrplib", "libc":"\/usr\/lib\/libc.dylib", "byteorder":"1234",
+    "osname":"darwin", "d_longdbl":"define", "libpth":"\/usr\/local\/lib
+    \/usr\/lib", "prototype":"define", "useperlio":"define", "so":"dylib",
+    "ccflags":"-arch i386 -arch ppc -g -pipe -fno-common -DPERL_DARWIN
+    -no-cpp-precomp -fno-strict-aliasing -Wdeclaration-after-statement
+    -I\/usr\/local\/include", "gccversion":"4.0.1 (Apple Inc. build 5465)",
+    "ldflags":"-arch i386 -arch ppc -L\/usr\/local\/lib", "useposix":"true",
+    "useshrplib":"true", "longsize":"4", "uselongdouble":null,
+    "alignbytes":"8", "d_longlong":"define", "use64bitall":"define",
+    "ccversion":"", "man3ext":"3pm", "doublesize":"8", "usemymalloc":"n",
+    "hint":"recommended", "use5005threads":null, "usemultiplicity":"define",
+    "perllibs":"-ldl -lm -lutil -lc", "dlext":"bundle", "ivsize":"4",
+    "usesocks":null, "lddlflags":"-arch i386 -arch ppc -bundle -undefined
+    dynamic_lookup -L\/usr\/local\/lib", "libperl":"libperl.dylib",
+    "osvers":"9.0", "cccdlflags":" ", "ptrsize":"4",
+    "uselargefiles":"define", "useithreads":"define", "longlongsize":"8",
+    "usethreads":"define", "d_sfio":null, "lseeksize":"8", "n":"",
+    "libs":"-ldbm -ldl -lm -lutil -lc", "dlsrc":"dl_dlopen.xs",
+    "use64bitint":"define", "d_dlsymun":null, "ld":"cc
+    -mmacosx-version-min=10.5", "gccosandvers":"", "d_sigaction":"define",
+    "ivtype":"long", "optimize":"-O3", "nvsize":"8", "intsize":"4",
+    "prefix":"\/" }, "_report_vers":1, "_need_prerequisites": {
+    "Test::More":"0.74" }, "_interpreter_vers_extra":null,
+    "_via":"CPAN::Testers::Report 0.03, cpantest",
+    "_make_test_output":"PERL_DL_NONLAZY=1 \/usr\/bin\/perl
+    \"-MExtUtils::Command::MM\" \"-e\" \"test_harness(0, 'blib\/lib',
+    'blib\/arch')\" t\/*.t\nt\/0-signature........skipped\n all skipped: Set
+    the environment variable TEST_SIGNATURE to enable this
+    test.\nt\/1-report...........ok \nt\/98-pod.............skipped\n all
+    skipped: Skipping author tests\nt\/99-pod_coverage....skipped\n all
+    skipped: Skipping author tests\nAll tests successful, 3 tests
+    skipped.\nFiles=4, Tests=113, 0 wallclock secs ( 0.38 cusr + 0.02 csys =
+    0.40 CPU)\n", "__errstr":null, "_dist":"Test-Reporter-1.34",
+    "_dist_name":"Test-Reporter", "_environment_variables": {
+    "HOME":"\/Users\/afoxson",
+    "PERL5LIB":"\/sw\/lib\/perl5:\/sw\/lib\/perl5\/darwin" },
+    "_interpreter_version_extra":"", "_interpreter_vers_float":"5.008008",
+    "_interpreter":"perl", "_have_prerequisites": { "Test::More":"0.47" },
+    "_perl_special_variables": { "$GID":"500 500", "$^X":"\/usr\/bin\/perl",
+    "$EGID":"500 500", "$UID\/$EUID":"500 \/ 500" }, "_dist_vers":"1.34",
+    "_rfc2822_date":"Sun, 13 Jan 2008 03:03:03 -0500",
+    "_perl_toolchain_modules": { "Module::Signature":"0.55", "YAML":"0.66",
+    "File::Spec":"3.25", "ExtUtils::Install":"1.44",
+    "ExtUtils::Command":"1.13", "Module::Build":"0.2808",
+    "ExtUtils::CBuilder":"0.21", "ExtUtils::Manifest":"1.51",
+    "Test::Harness":"3.05", "ExtUtils::MakeMaker":"6.42",
+    "ExtUtils::ParseXS":"2.18", "version":"0.74", "YAML::Syck":"1.00",
+    "Test::More":"0.74", "CPAN":"1.9205", "Cwd":"3.25" },
+    "_comments":"...This is a computer-generated test report..." }
 
 METHODS
-    * comments
-        User-specified comments to include with the test report. This is
-        oftentimes the output of a failed 'make test'. Optional.
+    *   comments
 
-    * config
+        User-specified comments to include with the test report.
+
+    *   config
+
         Without an argument returns a list of all of the major configuration
         items (osname, osvers, archname, byteorder, cc, libs, et al...) If
         given an argument will return the value associated with one of those
         configuration items
 
-    * dist
+    *   dist
+
         Full distribution name and version of which this test report is
         about. For example 'Test-Reporter-1.34'. Mandatory. If this method
         returns undef, it failed. Attempts to call this method with anything
         resembling a distribution of perl itself will not be honored (use
         perlbug).
 
-    * dist_name
-        Automatically calculated but can be overridden. This represents the
-        distribution's name only. For example 'Test-Reporter'.
+    *   dist_name
 
-    * dist_vers
-        Automatically calculated but can be overridden. This represents the
-        distribution's version only. For example '1.34'.
+        Automatically calculated but can instead be specified. This
+        represents the distribution's name only. For example
+        'Test-Reporter'.
 
-    * errstr
+    *   dist_vers
+
+        Automatically calculated but can instead be specified. This
+        represents the distribution's version only. For example '1.34'.
+
+    *   environment_variables
+
+        Store environment variable name and value pairs inside the object:
+
+        $test_report->environment_variables({HOME => '/home/foo', PATH =>
+        '/bin'});
+
+        Get the environment variable names:
+
+        $test_report->environment_variables(); # ('HOME', 'PATH')
+
+        Get the value for a particular environment variable:
+
+        $test_report->environment_variables('HOME'); # '/home/foo'
+
+    *   errstr
+
         Returns the error message from the last error that occurred.
 
-    * from
+    *   from
+
         Name and e-mail address of the tester. For example 'Adam J. Foxson
         <afoxson@pobox.com>'. Mandatory, and must be RFC 2822 compliant.
         Name may be omitted. If you ever need to parse this out to separate
@@ -162,7 +169,8 @@ METHODS
         method returns undef, it failed (i.e., what was specified was not
         RFC 2822 compliant). This is metadata.
 
-    * grade
+    *   grade
+
         Grade for the result of 'make test'. Must be pass, fail, na, or
         unknown. 'Pass' indicates that all tests passed. 'Fail' indicates
         one or more tests failed. 'Na' indicates that the distribution will
@@ -170,80 +178,147 @@ METHODS
         did not include tests. Mandatory. If this method returns undef, it
         failed.
 
-    * interpreter
-        At the moment always returns 'perl' but can be overridden.
+    *   have_prerequisites
 
-    * interpreter_vers_numeric
-        Automatically calculated but can be overridden. This represents the
-        interpreter's version. For example in the format of '5.8.8'.
+        Store prerequisite module and version pairs that the user had,
+        inside the object:
 
-    * interpreter_vers_float
-        Automatically calculated but can be overridden. This represents the
-        interpreter's version. For example in the format of '5.008008'.
+        $test_report->have_prerequisites({DBI => '1.23', CGI => '1.04'});
 
-    * interpreter_vers_extra
-        Automatically calculated but can be overridden. This usually
+        Get the prerequisite modules that the user had:
+
+        $test_report->have_prerequisites(); # ('DBI', 'CGI')
+
+        Get the version of a particular prerequisite module that user had:
+
+        $test_report->have_prerequisites('DBI'); # '1.23'
+
+    *   interpreter
+
+        At the moment always returns 'perl' but can instead be specified.
+
+    *   interpreter_vers_numeric
+
+        Automatically calculated but can instead be specified. This
+        represents the interpreter's version. For example in the format of
+        '5.8.8'.
+
+    *   interpreter_vers_float
+
+        Automatically calculated but can instead be specified. This
+        represents the interpreter's version. For example in the format of
+        '5.008008'.
+
+    *   interpreter_vers_extra
+
+        Automatically calculated but can instead be specified. This usually
         represents the interpreter's patch/patchlevel, if available. For
         example 'patchlevel 12345'.
 
-    * new
+    *   make_test_output
+
+        Output of "make test".
+
+    *   need_prerequisites
+
+        Store prerequisite module and version pairs that the user needed,
+        inside the object:
+
+        $test_report->need_prerequisites({DBI => '1.23', CGI => '1.04'});
+
+        Get the prerequisite modules that the user needed:
+
+        $test_report->need_prerequisites(); # ('DBI', 'CGI')
+
+        Get the version of a particular prerequisite module that user
+        needed:
+
+        $test_report->need_prerequisites('DBI'); # '1.23'
+
+    *   new
+
         Constructor. Accepts no arguments at this time. If this method
         returns undef, it failed.
 
-    * report_vers
-        Revision of the internal test report object format.
+    *   perl_special_variables
 
-    * rfc2822_date
-        Automatically calculated but can be overridden. This is the
+        Store perl special variable name and value pairs inside the object:
+
+        $test_report->perl_special_variables({'$^X' => '/usr/bin/perl'});
+
+        Get the perl special variable names:
+
+        $test_report->perl_special_variables(); # ('$^X')
+
+        Get the value for a particular perl special variable:
+
+        $test_report->perl_special_variables('$^X'); # '/usr/bin/perl'
+
+    *   perl_toolchain_modules
+
+        Store perl toolchain module and version pairs inside the object:
+
+        $test_report->perl_toolchain_modules({CPAN => '1.9205'});
+
+        Get the perl toolchain modules:
+
+        $test_report->perl_toolchain_modules(); # ('CPAN')
+
+        Get the version of a particular perl toolchain module:
+
+        $test_report->perl_toolchain_modules('CPAN'); # '1.9205'
+
+    *   report_vers
+
+        Revision of the internal test report object format. This will be
+        incremented any time the format changes.
+
+    *   rfc2822_date
+
+        Automatically calculated but can instead be specified. This is the
         RFC2822-compliant datetime. This is metadata.
 
-    * validate
+    *   validate
+
         Accepts no arguments. Returns true if the object represents a valid
         test report. Returns false and sets errstr() if the object does not
-        represent a valid test report. The ensures that that distribution
+        represent a valid test report. This ensures that that distribution
         specified is parseable into its name/version constituents, that the
         grade is one of 'pass', 'fail', 'na', or 'unknown', and that from is
         present and RFC 2822 compliant
 
-    * via
-        Automatically calculated (based on the caller) but can be
-        overridden. This represents the automation wrapping
+    *   via
+
+        Automatically calculated (based on the caller) but can instead be
+        specified. This represents the automation wrapping
         CPAN::Testers::Report. This is usually something like
         CPAN::Reporter, CPAN::YACSmoke. This is metadata.
 
-TODO
-    * Decide what to do about "interpreter"
-        The idea behind this is that CPAN modules might theoretically be
-        able to be run under interpreters other than perl itself. Therefore,
-        it might be a potentially valueable endeavor to test this. For
-        example, in the past, ponie would have been an example of where this
-        might have occurred. Nowadays, would pugs perhaps be a current
-        example?
-
-        The question is whether or not we want to actually accomodate for
-        this possibility. Or to restate, do we want to have support for
-        testing CPAN distributions with interpreters that are "perl-like"?
-
 COPYRIGHT
-    Copyright (c) 2007 Adam J. Foxson and the CPAN Testers. All rights
-    reserved.
+     Copyright (C) 2007, 2008 Adam J. Foxson and the CPAN Testers.
+     All rights reserved.
 
 LICENSE
     This program is free software; you may redistribute it and/or modify it
     under the same terms as Perl itself.
 
 SEE ALSO
-    * perl
-    * CPAN::Testers
+    *   perl
+
+    *   CPAN::Testers
 
 AUTHOR
     Adam J. Foxson <afoxson@pobox.com>
 
     With many thanks to:
 
-    * Richard Soderberg <rsod@cpan.org>
-    * Kirrily "Skud" Robert <skud@cpan.org>
-    * Kurt Starsinic <Kurt.Starsinic@isinet.com>
-    * Barbie <barbie@missbarbell.co.uk>
-    * David Golden <dagolden@cpan.org>
+    *   Barbie <barbie@missbarbell.co.uk>
+
+    *   David Golden <dagolden@cpan.org>
+
+    *   Kirrily "Skud" Robert <skud@cpan.org>
+
+    *   Richard Soderberg <rsod@cpan.org>
+
+    *   Kurt Starsinic <Kurt.Starsinic@isinet.com>
 
