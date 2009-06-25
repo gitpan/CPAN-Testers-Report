@@ -4,75 +4,61 @@
 # A copy of the License was distributed with this file or you may obtain a 
 # copy of the License from http://dev.perl.org/licenses/
 
-package CPAN::Testers::Report;
-use 5.006;
+package CPAN::Testers::Fact::Prereqs;
 use strict;
 use warnings;
+use Carp ();
+
+use base 'Metabase::Fact::Hash';
 
 our $VERSION = '0.10';
 $VERSION = eval $VERSION; ## no critic
 
-use base 'Metabase::Report';
-__PACKAGE__->load_fact_classes;
+sub optional_keys { qw/configure_requires requires build_requires/ }
 
-sub report_spec { 
-  return {
-    'CPAN::Testers::Fact::LegacyReport' => 1,
-    'CPAN::Testers::Fact::TestSummary' => 1, # include date
-    'CPAN::Testers::Fact::TestOutput' => '0+', # eventually by phase
-    'CPAN::Testers::Fact::TesterComment' => '0+',
-    'CPAN::Testers::Fact::PerlConfig' => '0+',
-    'CPAN::Testers::Fact::TestEnvironment' => '0+',
-    'CPAN::Testers::Fact::Prereqs' => '0+', # declared versions
-    'CPAN::Testers::Fact::InstalledModules' => '0+', 
-    # XXX needs NNTP_ID for old reports -- dagolden, 2009-06-24
-    # future goals
-    # 'CPAN::Testers::Fact::TAPArchive' => 1, 
-  }
-}
-
-sub content_metadata {
+sub validate_content {
   my ($self) = @_;
-  for my $fact ( $self->facts ) {
-    next unless $fact->type eq 'CPAN::Testers::Fact::LegacyReport';
-    return $fact->content_metadata;
+  $self->SUPER::validate_content;
+  my $content = $self->content;
+  for my $key ( keys %$content ) {
+    Carp::croak "key '$key' must be a hashref" unless ref $content->{$key} eq 'HASH';
   }
 }
-  
+
 1;
 
 __END__
 
 =head1 NAME
 
-CPAN::Testers::Report - CPAN Testers report object
+CPAN::Testers::Fact::Prereqs - prerequisites detected in running a CPAN Testers report
 
 =head1 SYNOPSIS
 
-  my $report = CPAN::Testers::Report->open(
+  my $fact = CPAN::Testers::Fact::Prereqs->new(
     resource => 'cpan:///distfile/RJBS/CPAN-Metabase-Fact-0.001.tar.gz',
+    content     => {
+      configure_requires => {
+        'ExtUtils::MakeMaker' => 0,
+      },
+      build_requires => {
+        'Test::More' => '0.60',
+      },
+      requires => {
+        'Carp' => 0,
+        'File::Spec' => 0.82,
+      },
+    },
   );
 
-  $report->add( CPAN::Testers::Fact::LegacyReport => {
-    grade         => $tr->grade,
-    osname        => $tr->osname,
-    osversion     => $tr->osversion
-    archname      => $tr->archname
-    perlversion   => $tr->perl_version_number
-    textreport    => $tr->report
-  });
-
-  # TestSummary happens to be the same as content metadata 
-  # of LegacyReport for now
-  $report->add( CPAN::Testers::Fact::TestSummary =>
-    $report->facts->[0]->content_metadata()
-  );
-    
-  $report->close();
 
 =head1 DESCRIPTION
 
-Metabase report class encapsulating Facts about a CPAN Testers report
+Prerequisites detected.  There are three valid types: configure_requires, requires,
+and build_requires.
+
+The prerequisite must be a version number or logical comparision as defined in the
+META.yml specification document.
 
 =head1 USAGE
 
@@ -110,6 +96,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 =cut
-
 
 

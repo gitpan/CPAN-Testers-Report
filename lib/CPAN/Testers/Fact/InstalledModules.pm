@@ -4,75 +4,63 @@
 # A copy of the License was distributed with this file or you may obtain a 
 # copy of the License from http://dev.perl.org/licenses/
 
-package CPAN::Testers::Report;
-use 5.006;
+package CPAN::Testers::Fact::InstalledModules;
 use strict;
 use warnings;
+use Carp ();
+
+use base 'Metabase::Fact::Hash';
 
 our $VERSION = '0.10';
 $VERSION = eval $VERSION; ## no critic
 
-use base 'Metabase::Report';
-__PACKAGE__->load_fact_classes;
+sub optional_keys { qw/prereqs toolchain undeclared/ };
 
-sub report_spec { 
-  return {
-    'CPAN::Testers::Fact::LegacyReport' => 1,
-    'CPAN::Testers::Fact::TestSummary' => 1, # include date
-    'CPAN::Testers::Fact::TestOutput' => '0+', # eventually by phase
-    'CPAN::Testers::Fact::TesterComment' => '0+',
-    'CPAN::Testers::Fact::PerlConfig' => '0+',
-    'CPAN::Testers::Fact::TestEnvironment' => '0+',
-    'CPAN::Testers::Fact::Prereqs' => '0+', # declared versions
-    'CPAN::Testers::Fact::InstalledModules' => '0+', 
-    # XXX needs NNTP_ID for old reports -- dagolden, 2009-06-24
-    # future goals
-    # 'CPAN::Testers::Fact::TAPArchive' => 1, 
-  }
-}
-
-sub content_metadata {
+sub validate_content {
   my ($self) = @_;
-  for my $fact ( $self->facts ) {
-    next unless $fact->type eq 'CPAN::Testers::Fact::LegacyReport';
-    return $fact->content_metadata;
+  $self->SUPER::validate_content;
+  my $content = $self->content;
+  for my $key ( keys %$content ) {
+    Carp::croak "key '$key' must be a hashref" unless ref $content->{$key} eq 'HASH';
   }
 }
-  
+
 1;
 
 __END__
 
 =head1 NAME
 
-CPAN::Testers::Report - CPAN Testers report object
+CPAN::Testers::Fact::InstalledModules - versions of particular modules installed on a system
 
 =head1 SYNOPSIS
 
-  my $report = CPAN::Testers::Report->open(
+  my $fact = CPAN::Testers::Fact::InstalledModules->new({
     resource => 'cpan:///distfile/RJBS/CPAN-Metabase-Fact-0.001.tar.gz',
-  );
-
-  $report->add( CPAN::Testers::Fact::LegacyReport => {
-    grade         => $tr->grade,
-    osname        => $tr->osname,
-    osversion     => $tr->osversion
-    archname      => $tr->archname
-    perlversion   => $tr->perl_version_number
-    textreport    => $tr->report
+    content     => {
+      prereqs => {
+        'Test::More' => '0.80',
+      },
+      toolchain => {
+        'CPAN' => '1.92', 
+      },
+    },
   });
-
-  # TestSummary happens to be the same as content metadata 
-  # of LegacyReport for now
-  $report->add( CPAN::Testers::Fact::TestSummary =>
-    $report->facts->[0]->content_metadata()
-  );
-    
-  $report->close();
 
 =head1 DESCRIPTION
 
-Metabase report class encapsulating Facts about a CPAN Testers report
+Versions detected of modules installed on a system.  There are three valid
+types: prereqs, toolchain, undeclared.  
+
+Prereqs are the versions of modules listed in any of the prerequisite fields.  
+
+Toolchain module versions are intended to reflect the state of the toolchain
+used to test the distribution (e.g.  CPAN, Test::Harness, etc.).  
+
+Undeclared module versions capture the version of modules that were detected
+as being used by the distribution, but that were not listed explicitly as 
+prerequisites.  This will often be core modules or submodules, but could 
+include missing dependencies.
 
 =head1 USAGE
 
@@ -110,6 +98,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 =cut
-
 
 

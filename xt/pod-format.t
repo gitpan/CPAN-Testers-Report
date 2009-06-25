@@ -1,13 +1,13 @@
-# Changes
 # Copyright (c) 2009 by David Golden. All rights reserved.
 # Licensed under terms of Perl itself (the "License").
 # You may not use this file except in compliance with the License.
 # A copy of the License was distributed with this file or you may obtain a 
 # copy of the License from http://dev.perl.org/licenses/
 
-Revision history for CPAN-Testers-Report
+use Test::More;
 
-0.10 Wed Jun 24 22:38:37 EDT 2009
+my $min_tp = 1.22;
+eval "use Test::Pod $min_tp";
+plan skip_all => "Test::Pod $min_tp required for testing POD" if $@;
 
-    - new CPAN::Testers::Report based on Metabase::Fact classes;
-      Supercedes prior draft implementation by Adam Foxson
+all_pod_files_ok();
