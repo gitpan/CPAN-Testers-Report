@@ -11,7 +11,7 @@ use Carp ();
 
 use base 'Metabase::Fact::Hash';
 
-our $VERSION = '0.10';
+our $VERSION = '1.999';
 $VERSION = eval $VERSION; ## no critic
 
 sub required_keys { return qw/build config/ }
@@ -21,9 +21,17 @@ sub content_metadata {
   my ($self) = @_;
   my $content = $self->content;
   return {
-    osname      => [ Str => $content->{config}{osname} ],
-    archname    => [ Str => $content->{config}{archname} ],
-    version     => [ Num => $content->{config}{version} ],
+    osname      => $content->{config}{osname},
+    archname    => $content->{config}{archname},
+    version     => $content->{config}{version},
+  }
+}
+  
+sub content_metadata_types {
+  return {
+    osname      => '//str',
+    archname    => '//str',
+    version     => '//str',
   }
 }
   

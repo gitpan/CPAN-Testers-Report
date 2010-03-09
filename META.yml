@@ -4,12 +4,13 @@ author:
   - '=over '
 build_requires:
   ExtUtils::MakeMaker: 6.42
-  Test::Exception: 0.26
-  Test::More: 0.62
+  File::Find: 0
+  File::Spec: 3.31
+  Test::More: 0.88
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.87'
+generated_by: 'Module::Install version 0.91'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -22,9 +23,12 @@ no_index:
     - t
     - xt
 requires:
-  Metabase::Fact::Hash: 0
-  Metabase::Report: 0
+  Carp: 0
+  Metabase::Fact::Hash: 0.003
+  Metabase::Fact::String: 0.003
+  Metabase::Report: 0.003
+  base: 2.14
   perl: 5.6.0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.10
+version: 1.999
