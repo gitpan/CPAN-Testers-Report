@@ -1,19 +1,25 @@
-# Copyright (c) 2009 by David Golden. All rights reserved.
-# Licensed under terms of Perl itself (the "License").
-# You may not use this file except in compliance with the License.
-# A copy of the License was distributed with this file or you may obtain a 
-# copy of the License from http://dev.perl.org/licenses/
-
-package CPAN::Testers::Report;
+# 
+# This file is part of CPAN-Testers-Report
+# 
+# This software is Copyright (c) 2010 by David Golden.
+# 
+# This is free software, licensed under:
+# 
+#   The Apache License, Version 2.0, January 2004
+# 
 use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.999';
-$VERSION = eval $VERSION; ## no critic
+package CPAN::Testers::Report;
+BEGIN {
+  $CPAN::Testers::Report::VERSION = '1.999001';
+}
+# ABSTRACT: CPAN Testers report object
 
-use base 'Metabase::Report';
-__PACKAGE__->load_fact_classes;
+use Metabase::Report 0.016 ();
+our @ISA = qw/Metabase::Report/;
+CPAN::Testers::Report->load_fact_classes;
 
 sub report_spec { 
   return {
@@ -49,11 +55,17 @@ sub content_metadata_types {
   
 1;
 
-__END__
+
+
+=pod
 
 =head1 NAME
 
 CPAN::Testers::Report - CPAN Testers report object
+
+=head1 VERSION
+
+version 1.999001
 
 =head1 SYNOPSIS
 
@@ -84,6 +96,8 @@ Metabase report class encapsulating Facts about a CPAN Testers report
 
 =head1 USAGE
 
+CPAN::Testers::Report subclases L<Metabase::Report>.  See that module for API.
+See L<Test::Reporter::Transport::Metabase> for an example of usage.
 
 =head1 BUGS
 
@@ -96,28 +110,21 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 AUTHOR
 
-=over 
-
-=item * David A. Golden (DAGOLDEN)
-
-=back
+  David Golden <dagolden@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009 by David A. Golden
+This software is Copyright (c) 2010 by David Golden.
 
-Licensed under the same terms as Perl itself (the "License").
-You may not use this file except in compliance with the License.
-A copy of the License was distributed with this file or you may obtain a 
-copy of the License from http://dev.perl.org/licenses/
+This is free software, licensed under:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+  The Apache License, Version 2.0, January 2004
 
 =cut
+
+
+__END__
+
 
 
 

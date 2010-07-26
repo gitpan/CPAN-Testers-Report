@@ -1,17 +1,58 @@
-require 5.006;
-use inc::Module::Install;
 
-all_from('lib/CPAN/Testers/Report.pm');
+use strict;
+use warnings;
 
-requires      ('Carp'                         => 0       );
-requires      ('Metabase::Fact::Hash'         => 0.003   );
-requires      ('Metabase::Fact::String'       => 0.003   );
-requires      ('Metabase::Report'             => 0.003   );
-requires      ('base'                         => 2.14    );
-build_requires('File::Find'                   => 0       );
-build_requires('File::Spec'                   => 3.31    );
-build_requires('Test::More'                   => 0.88    );
-  
-extra_tests;
+BEGIN { require 5.006; }
 
-WriteAll;
+use ExtUtils::MakeMaker 6.31;
+
+
+
+my %WriteMakefileArgs = (
+  'ABSTRACT' => 'CPAN Testers report object',
+  'AUTHOR' => 'David Golden <dagolden@cpan.org>',
+  'BUILD_REQUIRES' => {
+    'File::Find' => '0',
+    'File::Temp' => '0',
+    'Test::More' => '0.88'
+  },
+  'CONFIGURE_REQUIRES' => {
+    'ExtUtils::MakeMaker' => '6.31'
+  },
+  'DISTNAME' => 'CPAN-Testers-Report',
+  'EXE_FILES' => [],
+  'LICENSE' => 'apache',
+  'NAME' => 'CPAN::Testers::Report',
+  'PREREQ_PM' => {
+    'Carp' => '0',
+    'Metabase::Fact::Hash' => '0.016',
+    'Metabase::Fact::String' => '0.016',
+    'Metabase::Report' => '0.016'
+  },
+  'VERSION' => '1.999001',
+  'test' => {
+    'TESTS' => 't/*.t'
+  }
+);
+
+
+unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
+  my $br = delete $WriteMakefileArgs{BUILD_REQUIRES};
+  my $pp = $WriteMakefileArgs{PREREQ_PM};
+  for my $mod ( keys %$br ) {
+    if ( exists $pp->{$mod} ) {
+      $pp->{$mod} = $br->{$mod} if $br->{$mod} > $pp->{$mod};
+    }
+    else {
+      $pp->{$mod} = $br->{$mod};
+    }
+  }
+}
+
+delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
+  unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
+
+WriteMakefile(%WriteMakefileArgs);
+
+
+

@@ -1,18 +1,25 @@
-# Copyright (c) 2009 by David Golden. All rights reserved.
-# Licensed under terms of Perl itself (the "License").
-# You may not use this file except in compliance with the License.
-# A copy of the License was distributed with this file or you may obtain a 
-# copy of the License from http://dev.perl.org/licenses/
-
-package CPAN::Testers::Fact::LegacyReport;
+# 
+# This file is part of CPAN-Testers-Report
+# 
+# This software is Copyright (c) 2010 by David Golden.
+# 
+# This is free software, licensed under:
+# 
+#   The Apache License, Version 2.0, January 2004
+# 
+use 5.006;
 use strict;
 use warnings;
+package CPAN::Testers::Fact::LegacyReport;
+BEGIN {
+  $CPAN::Testers::Fact::LegacyReport::VERSION = '1.999001';
+}
+# ABSTRACT: an email-style report for CPAN Testers
+
 use Carp ();
 
-use base 'Metabase::Fact::Hash';
-
-our $VERSION = '1.999';
-$VERSION = eval $VERSION; ## no critic
+use Metabase::Fact::Hash 0.016;
+our @ISA = qw/Metabase::Fact::Hash/;
 
 sub required_keys { qw/grade osname osversion archname perl_version textreport/ }
 
@@ -40,11 +47,17 @@ sub content_metadata_types {
   
 1;
 
-__END__
+
+
+=pod
 
 =head1 NAME
 
 CPAN::Testers::Fact::LegacyReport - an email-style report for CPAN Testers
+
+=head1 VERSION
+
+version 1.999001
 
 =head1 SYNOPSIS
 
@@ -58,7 +71,7 @@ CPAN::Testers::Fact::LegacyReport - an email-style report for CPAN Testers
       osname        => $tr->osname,
       osversion     => $tr->osversion
       archname      => $tr->archname
-      perlversion   => $tr->perl_version_number
+      perl_version  => $tr->perl_version_number
       textreport    => $tr->report
     },
   });
@@ -67,8 +80,11 @@ CPAN::Testers::Fact::LegacyReport - an email-style report for CPAN Testers
 
 Wraps up old-style CPAN Testers report
 
+=for Pod::Coverage required_keys
+
 =head1 USAGE
 
+See L<Metabase::Fact>.
 
 =head1 BUGS
 
@@ -81,26 +97,19 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 AUTHOR
 
-=over 
-
-=item * David A. Golden (DAGOLDEN)
-
-=back
+  David Golden <dagolden@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009 by David A. Golden
+This software is Copyright (c) 2010 by David Golden.
 
-Licensed under the same terms as Perl itself (the "License").
-You may not use this file except in compliance with the License.
-A copy of the License was distributed with this file or you may obtain a 
-copy of the License from http://dev.perl.org/licenses/
+This is free software, licensed under:
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+  The Apache License, Version 2.0, January 2004
 
 =cut
+
+
+__END__
+
 
