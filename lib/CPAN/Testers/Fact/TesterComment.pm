@@ -1,20 +1,10 @@
-# 
-# This file is part of CPAN-Testers-Report
-# 
-# This software is Copyright (c) 2010 by David Golden.
-# 
-# This is free software, licensed under:
-# 
-#   The Apache License, Version 2.0, January 2004
-# 
 use 5.006;
 use strict;
 use warnings;
+
 package CPAN::Testers::Fact::TesterComment;
-BEGIN {
-  $CPAN::Testers::Fact::TesterComment::VERSION = '1.999001';
-}
 # ABSTRACT: comment about a CPAN Tester report
+our $VERSION = '1.999002'; # VERSION
 
 use Carp ();
 
@@ -23,9 +13,11 @@ our @ISA = qw/Metabase::Fact::String/;
 
 1;
 
-
+__END__
 
 =pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -33,7 +25,7 @@ CPAN::Testers::Fact::TesterComment - comment about a CPAN Tester report
 
 =head1 VERSION
 
-version 1.999001
+version 1.999002
 
 =head1 SYNOPSIS
 
@@ -60,20 +52,14 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 AUTHOR
 
-  David Golden <dagolden@cpan.org>
+David Golden <dagolden@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2010 by David Golden.
+This software is Copyright (c) 2014 by David Golden.
 
 This is free software, licensed under:
 
   The Apache License, Version 2.0, January 2004
 
 =cut
-
-
-__END__
-
-
-

@@ -1,20 +1,10 @@
-# 
-# This file is part of CPAN-Testers-Report
-# 
-# This software is Copyright (c) 2010 by David Golden.
-# 
-# This is free software, licensed under:
-# 
-#   The Apache License, Version 2.0, January 2004
-# 
 use 5.006;
 use strict;
 use warnings;
+
 package CPAN::Testers::Fact::LegacyReport;
-BEGIN {
-  $CPAN::Testers::Fact::LegacyReport::VERSION = '1.999001';
-}
 # ABSTRACT: an email-style report for CPAN Testers
+our $VERSION = '1.999002'; # VERSION
 
 use Carp ();
 
@@ -24,32 +14,34 @@ our @ISA = qw/Metabase::Fact::Hash/;
 sub required_keys { qw/grade osname osversion archname perl_version textreport/ }
 
 sub content_metadata {
-  my ($self) = @_;
-  my $content = $self->content;
-  return {
-    grade       => $content->{grade},
-    osname      => $content->{osname},
-    osversion   => $content->{osversion},
-    archname    => $content->{archname},
-    perl_version => $content->{perl_version},
-  };
+    my ($self) = @_;
+    my $content = $self->content;
+    return {
+        grade        => $content->{grade},
+        osname       => $content->{osname},
+        osversion    => $content->{osversion},
+        archname     => $content->{archname},
+        perl_version => $content->{perl_version},
+    };
 }
-  
+
 sub content_metadata_types {
-  return {
-    grade       => '//str',
-    osname      => '//str',
-    osversion   => '//str',
-    archname    => '//str',
-    perl_version => '//str',
-  };
+    return {
+        grade        => '//str',
+        osname       => '//str',
+        osversion    => '//str',
+        archname     => '//str',
+        perl_version => '//str',
+    };
 }
-  
+
 1;
 
-
+__END__
 
 =pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -57,7 +49,7 @@ CPAN::Testers::Fact::LegacyReport - an email-style report for CPAN Testers
 
 =head1 VERSION
 
-version 1.999001
+version 1.999002
 
 =head1 SYNOPSIS
 
@@ -80,11 +72,11 @@ version 1.999001
 
 Wraps up old-style CPAN Testers report
 
-=for Pod::Coverage required_keys
-
 =head1 USAGE
 
 See L<Metabase::Fact>.
+
+=for Pod::Coverage required_keys
 
 =head1 BUGS
 
@@ -97,19 +89,14 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 AUTHOR
 
-  David Golden <dagolden@cpan.org>
+David Golden <dagolden@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2010 by David Golden.
+This software is Copyright (c) 2014 by David Golden.
 
 This is free software, licensed under:
 
   The Apache License, Version 2.0, January 2004
 
 =cut
-
-
-__END__
-
-

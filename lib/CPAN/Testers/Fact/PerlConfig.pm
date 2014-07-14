@@ -1,20 +1,10 @@
-# 
-# This file is part of CPAN-Testers-Report
-# 
-# This software is Copyright (c) 2010 by David Golden.
-# 
-# This is free software, licensed under:
-# 
-#   The Apache License, Version 2.0, January 2004
-# 
 use 5.006;
 use strict;
 use warnings;
+
 package CPAN::Testers::Fact::PerlConfig;
-BEGIN {
-  $CPAN::Testers::Fact::PerlConfig::VERSION = '1.999001';
-}
 # ABSTRACT: Perl build and configuration information for a CPAN Testers report
+our $VERSION = '1.999002'; # VERSION
 
 use Carp ();
 
@@ -23,30 +13,32 @@ our @ISA = qw/Metabase::Fact::Hash/;
 
 sub required_keys { return qw/build config/ }
 
-# XXX replace this with whatever Tux says is useful -- dagolden, 2009-03-30 
+# XXX replace this with whatever Tux says is useful -- dagolden, 2009-03-30
 sub content_metadata {
-  my ($self) = @_;
-  my $content = $self->content;
-  return {
-    osname      => $content->{config}{osname},
-    archname    => $content->{config}{archname},
-    version     => $content->{config}{version},
-  }
+    my ($self) = @_;
+    my $content = $self->content;
+    return {
+        osname   => $content->{config}{osname},
+        archname => $content->{config}{archname},
+        version  => $content->{config}{version},
+    };
 }
-  
+
 sub content_metadata_types {
-  return {
-    osname      => '//str',
-    archname    => '//str',
-    version     => '//str',
-  }
+    return {
+        osname   => '//str',
+        archname => '//str',
+        version  => '//str',
+    };
 }
-  
+
 1;
 
-
+__END__
 
 =pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -54,7 +46,7 @@ CPAN::Testers::Fact::PerlConfig - Perl build and configuration information for a
 
 =head1 VERSION
 
-version 1.999001
+version 1.999002
 
 =head1 SYNOPSIS
 
@@ -73,11 +65,11 @@ version 1.999001
 
 Summarize perl build and config from a CPAN testers run 
 
-=for Pod::Coverage required_keys
-
 =head1 USAGE
 
 See L<Metabase::Fact>.
+
+=for Pod::Coverage required_keys
 
 =head1 BUGS
 
@@ -90,20 +82,14 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 AUTHOR
 
-  David Golden <dagolden@cpan.org>
+David Golden <dagolden@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2010 by David Golden.
+This software is Copyright (c) 2014 by David Golden.
 
 This is free software, licensed under:
 
   The Apache License, Version 2.0, January 2004
 
 =cut
-
-
-__END__
-
-
-

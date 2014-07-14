@@ -1,5 +1,11 @@
 Revision history for CPAN-Testers-Report
 
+1.999002  2014-07-14 15:29:20-04:00 America/New_York
+
+    - modernized distribution meta files
+
+    - tidied code
+
 1.999001  2010-07-26 16:22:22 EST5EDT
 
     - removed 'base' pragam

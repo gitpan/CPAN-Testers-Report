@@ -1,42 +1,34 @@
-# 
-# This file is part of CPAN-Testers-Report
-# 
-# This software is Copyright (c) 2010 by David Golden.
-# 
-# This is free software, licensed under:
-# 
-#   The Apache License, Version 2.0, January 2004
-# 
 use 5.006;
 use strict;
 use warnings;
+
 package CPAN::Testers::Fact::InstalledModules;
-BEGIN {
-  $CPAN::Testers::Fact::InstalledModules::VERSION = '1.999001';
-}
 # ABSTRACT: Versions of particular modules installed on a system
+our $VERSION = '1.999002'; # VERSION
 
 use Carp ();
 
 use Metabase::Fact::Hash 0.016;
 our @ISA = qw/Metabase::Fact::Hash/;
 
-sub optional_keys { qw/prereqs toolchain undeclared/ };
+sub optional_keys { qw/prereqs toolchain undeclared/ }
 
 sub validate_content {
-  my ($self) = @_;
-  $self->SUPER::validate_content;
-  my $content = $self->content;
-  for my $key ( keys %$content ) {
-    Carp::croak "key '$key' must be a hashref" unless ref $content->{$key} eq 'HASH';
-  }
+    my ($self) = @_;
+    $self->SUPER::validate_content;
+    my $content = $self->content;
+    for my $key ( keys %$content ) {
+        Carp::croak "key '$key' must be a hashref" unless ref $content->{$key} eq 'HASH';
+    }
 }
 
 1;
 
-
+__END__
 
 =pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -44,7 +36,7 @@ CPAN::Testers::Fact::InstalledModules - Versions of particular modules installed
 
 =head1 VERSION
 
-version 1.999001
+version 1.999002
 
 =head1 SYNOPSIS
 
@@ -75,11 +67,11 @@ as being used by the distribution, but that were not listed explicitly as
 prerequisites.  This will often be core modules or submodules, but could 
 include missing dependencies.
 
-=for Pod::Coverage optional_keys
-
 =head1 USAGE
 
 See L<Metabase::Fact>.
+
+=for Pod::Coverage optional_keys
 
 =head1 BUGS
 
@@ -92,20 +84,14 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 AUTHOR
 
-  David Golden <dagolden@cpan.org>
+David Golden <dagolden@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2010 by David Golden.
+This software is Copyright (c) 2014 by David Golden.
 
 This is free software, licensed under:
 
   The Apache License, Version 2.0, January 2004
 
 =cut
-
-
-__END__
-
-
-

@@ -1,20 +1,10 @@
-# 
-# This file is part of CPAN-Testers-Report
-# 
-# This software is Copyright (c) 2010 by David Golden.
-# 
-# This is free software, licensed under:
-# 
-#   The Apache License, Version 2.0, January 2004
-# 
 use 5.006;
 use strict;
 use warnings;
+
 package CPAN::Testers::Fact::Prereqs;
-BEGIN {
-  $CPAN::Testers::Fact::Prereqs::VERSION = '1.999001';
-}
 # ABSTRACT: prerequisites detected in running a CPAN Testers report
+our $VERSION = '1.999002'; # VERSION
 
 use Carp ();
 
@@ -24,19 +14,21 @@ our @ISA = qw/Metabase::Fact::Hash/;
 sub optional_keys { qw/configure_requires requires build_requires/ }
 
 sub validate_content {
-  my ($self) = @_;
-  $self->SUPER::validate_content;
-  my $content = $self->content;
-  for my $key ( keys %$content ) {
-    Carp::croak "key '$key' must be a hashref" unless ref $content->{$key} eq 'HASH';
-  }
+    my ($self) = @_;
+    $self->SUPER::validate_content;
+    my $content = $self->content;
+    for my $key ( keys %$content ) {
+        Carp::croak "key '$key' must be a hashref" unless ref $content->{$key} eq 'HASH';
+    }
 }
 
 1;
 
-
+__END__
 
 =pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -44,7 +36,7 @@ CPAN::Testers::Fact::Prereqs - prerequisites detected in running a CPAN Testers 
 
 =head1 VERSION
 
-version 1.999001
+version 1.999002
 
 =head1 SYNOPSIS
 
@@ -69,14 +61,14 @@ version 1.999001
 Prerequisites detected.  There are three valid types: configure_requires, requires,
 and build_requires.
 
-The prerequisite must be a version number or logical comparision as defined in the
+The prerequisite must be a version number or logical comparison as defined in the
 META.yml specification document.
-
-=for Pod::Coverage optional_keys
 
 =head1 USAGE
 
 See L<Metabase::Fact>.
+
+=for Pod::Coverage optional_keys
 
 =head1 BUGS
 
@@ -89,21 +81,14 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 AUTHOR
 
-  David Golden <dagolden@cpan.org>
+David Golden <dagolden@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2010 by David Golden.
+This software is Copyright (c) 2014 by David Golden.
 
 This is free software, licensed under:
 
   The Apache License, Version 2.0, January 2004
 
 =cut
-
-
-__END__
-
-
-
-

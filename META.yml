@@ -3,17 +3,19 @@ abstract: 'CPAN Testers report object'
 author:
   - 'David Golden <dagolden@cpan.org>'
 build_requires:
-  File::Find: 0
-  File::Temp: 0
-  Test::More: 0.88
+  ExtUtils::MakeMaker: '0'
+  File::Spec::Functions: '0'
+  List::Util: '0'
+  Test::More: '0.88'
+  version: '0'
 configure_requires:
-  ExtUtils::MakeMaker: 6.31
+  ExtUtils::MakeMaker: '6.17'
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.101831, CPAN::Meta::Converter version 2.101670'
+generated_by: 'Dist::Zilla version 5.019, CPAN::Meta::Converter version 2.141170'
 license: apache
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: 1.4
+  version: '1.4'
 name: CPAN-Testers-Report
 no_index:
   directory:
@@ -21,40 +23,49 @@ no_index:
     - xt
     - examples
     - corpus
+  package:
+    - DB
 provides:
   CPAN::Testers::Fact::InstalledModules:
     file: lib/CPAN/Testers/Fact/InstalledModules.pm
-    version: 1.999001
+    version: '1.999002'
   CPAN::Testers::Fact::LegacyReport:
     file: lib/CPAN/Testers/Fact/LegacyReport.pm
-    version: 1.999001
+    version: '1.999002'
   CPAN::Testers::Fact::PerlConfig:
     file: lib/CPAN/Testers/Fact/PerlConfig.pm
-    version: 1.999001
+    version: '1.999002'
   CPAN::Testers::Fact::Prereqs:
     file: lib/CPAN/Testers/Fact/Prereqs.pm
-    version: 1.999001
+    version: '1.999002'
   CPAN::Testers::Fact::TestEnvironment:
     file: lib/CPAN/Testers/Fact/TestEnvironment.pm
-    version: 1.999001
+    version: '1.999002'
   CPAN::Testers::Fact::TestOutput:
     file: lib/CPAN/Testers/Fact/TestOutput.pm
-    version: 1.999001
+    version: '1.999002'
   CPAN::Testers::Fact::TestSummary:
     file: lib/CPAN/Testers/Fact/TestSummary.pm
-    version: 1.999001
+    version: '1.999002'
   CPAN::Testers::Fact::TesterComment:
     file: lib/CPAN/Testers/Fact/TesterComment.pm
-    version: 1.999001
+    version: '1.999002'
   CPAN::Testers::Report:
     file: lib/CPAN/Testers/Report.pm
-    version: 1.999001
+    version: '1.999002'
 requires:
-  Carp: 0
-  Metabase::Fact::Hash: 0.016
-  Metabase::Fact::String: 0.016
-  Metabase::Report: 0.016
-  perl: 5.006
+  Carp: '0'
+  Metabase::Fact::Hash: '0.016'
+  Metabase::Fact::String: '0.016'
+  Metabase::Report: '0.016'
+  perl: '5.006'
+  strict: '0'
+  warnings: '0'
 resources:
-  repository: http://github.com/dagolden/cpan-testers-report
-version: 1.999001
+  bugtracker: https://github.com/dagolden/CPAN-Testers-Report/issues
+  homepage: https://github.com/dagolden/CPAN-Testers-Report
+  repository: https://github.com/dagolden/CPAN-Testers-Report.git
+version: '1.999002'
+x_authority: cpan:DAGOLDEN
+x_contributors:
+  - 'David Steinbrunner <dsteinbrunner@pobox.com>'

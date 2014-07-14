@@ -1,20 +1,10 @@
-# 
-# This file is part of CPAN-Testers-Report
-# 
-# This software is Copyright (c) 2010 by David Golden.
-# 
-# This is free software, licensed under:
-# 
-#   The Apache License, Version 2.0, January 2004
-# 
 use 5.006;
 use strict;
 use warnings;
+
 package CPAN::Testers::Fact::TestSummary;
-BEGIN {
-  $CPAN::Testers::Fact::TestSummary::VERSION = '1.999001';
-}
 # ABSTRACT: summary of a CPAN Testers analysis of a distribution
+our $VERSION = '1.999002'; # VERSION
 
 use Carp ();
 
@@ -24,32 +14,34 @@ our @ISA = qw/Metabase::Fact::Hash/;
 sub required_keys { qw/grade osname osversion archname perl_version/ }
 
 sub content_metadata {
-  my ($self) = @_;
-  my $content = $self->content;
-  return {
-    grade         => $content->{grade} ,
-    osname        => $content->{osname} ,
-    archname      => $content->{archname} ,
-    perl_version  => $content->{perl_version} ,
-  }
+    my ($self) = @_;
+    my $content = $self->content;
+    return {
+        grade        => $content->{grade},
+        osname       => $content->{osname},
+        archname     => $content->{archname},
+        perl_version => $content->{perl_version},
+    };
 }
 
 sub content_metadata_types {
-  return {
-    grade         => '//str', 
-    osname        => '//str',
-    archname      => '//str',
-    perl_version  => '//str',
-  }
+    return {
+        grade        => '//str',
+        osname       => '//str',
+        archname     => '//str',
+        perl_version => '//str',
+    };
 }
 
-# should validate grades, etc. -- dagolden, 2009-03-30 
+# should validate grades, etc. -- dagolden, 2009-03-30
 
 1;
 
-
+__END__
 
 =pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -57,7 +49,7 @@ CPAN::Testers::Fact::TestSummary - summary of a CPAN Testers analysis of a distr
 
 =head1 VERSION
 
-version 1.999001
+version 1.999002
 
 =head1 SYNOPSIS
 
@@ -81,14 +73,14 @@ Summarize CPAN testers run -- this is equivalent to the content of the old
 email Subject line, plus explicit OS name and perl version, which previously had
 to be parsed out of the report
 
-=for Pod::Coverage required_keys
-
 =head1 USAGE
 
 See L<Metabase::Fact>.
 
 Todo:
   # XXX document valid grades, etc. -- dagolden, 2009-03-30 
+
+=for Pod::Coverage required_keys
 
 =head1 BUGS
 
@@ -101,20 +93,14 @@ existing test-file that illustrates the bug or desired feature.
 
 =head1 AUTHOR
 
-  David Golden <dagolden@cpan.org>
+David Golden <dagolden@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2010 by David Golden.
+This software is Copyright (c) 2014 by David Golden.
 
 This is free software, licensed under:
 
   The Apache License, Version 2.0, January 2004
 
 =cut
-
-
-__END__
-
-
-
